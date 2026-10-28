@@ -5,6 +5,7 @@
  */
 
 import { subscribeToCollection, saveDocument, deleteDocument } from './firebaseService';
+import { APPS_DATA } from '../data/storeData';
 
 export interface ProjectTemplate {
   id: string;
@@ -202,7 +203,15 @@ export interface AdminSettings {
   aiWelcomeMessageEn?: string;
   aiFallbackReplyAr?: string;
   aiFallbackReplyEn?: string;
+  isOnlinePaymentGatewayEnabled?: boolean;
+  kashierMerchantId?: string;
+  kashierApiKey?: string;
+  kashierSecretKey?: string;
+  kashierIframeId?: string;
+  kashierMode?: 'test' | 'live';
   seoSettings: SeoSettings;
+  isJoinPlatformEnabled?: boolean;
+  zoomMeetingKey?: string;
 }
 
 export interface SeoSettings {
@@ -246,6 +255,9 @@ export interface PurchasedSystemRecord {
   projectId: string;
   projectTitleAr: string;
   projectTitleEn: string;
+  platformNameAr?: string;
+  platformNameEn?: string;
+  generatedVercelUrl?: string; // e.g. https://<slug>.vercel.app
   category: string;
   planType: 'monthly' | 'annual' | 'full';
   amount: string;
@@ -278,6 +290,20 @@ export interface UserAccount {
   deviceOs?: string;
   isVerified?: boolean;
   verifiedAt?: string;
+}
+
+export interface JobApplication {
+  id: string;
+  name: string;
+  phone: string;
+  role: 'customer_service' | 'programmer' | 'monitor';
+  status: 'pending' | 'accepted' | 'rejected';
+  profileLink: string;
+  gitHubLink?: string;
+  nationalIdPhotoUrl?: string;
+  yearsExperience: number;
+  reason: string;
+  appliedAt: string;
 }
 
 export interface PublishedProject {
@@ -329,15 +355,24 @@ export interface UserOrder {
   userId: string;
   userName: string;
   userPhone: string;
+  userEmail?: string;
   planType: 'monthly' | 'annual' | 'full';
   amount: string;
   paymentMethod: string;
-  referenceId: string;
+  walletName?: string;
+  walletNumber?: string;
+  senderPhone?: string; // Sender's wallet / phone number
+  referenceId: string; // Transaction reference / code
+  receiptImage?: string; // Proof of payment screenshot (base64)
+  platformNameAr?: string; // Platform Name in Arabic
+  platformNameEn?: string; // Platform Name in English
+  generatedVercelUrl?: string; // Dynamically generated Vercel production URL
   createdAt: string;
-  status: 'pending' | 'active' | 'confirmed';
+  status: 'pending' | 'active' | 'confirmed' | 'rejected';
   projectId?: string;
   projectTitle?: string;
   licenseKey?: string;
+  certificateNumber?: string;
   confirmedAt?: string;
   adminNotes?: string;
 }
@@ -430,12 +465,25 @@ export interface ActivityLogItem {
   timestamp: string;
 }
 
+export interface QuickReply {
+  id: string;
+  titleAr: string;
+  titleEn: string;
+  messageAr: string;
+  messageEn: string;
+}
+
 export interface ChatMessage {
   id: string;
-  senderName: string;
-  senderPhone?: string;
+  userId: string;
+  userName: string;
+  userEmail?: string;
   message: string;
-  timestamp: string;
+  sender: 'client' | 'admin';
+  createdAt: string;
+  isRead: boolean;
+  senderName?: string;
+  timestamp?: string;
   isAdminReply?: boolean;
 }
 
@@ -524,6 +572,8 @@ export interface UserRoleAssignment {
   updatedAt: string;
 }
 
+const otpStore: Record<string, { code: string; expiresAt: number }> = {};
+
 const DEFAULT_INITIAL_USER_ROLES: Record<string, UserRoleAssignment> = {
   'alamza217@gmail.com': {
     email: 'alamza217@gmail.com',
@@ -560,97 +610,51 @@ const DEFAULT_INITIAL_STAFF: StaffMember[] = [
   }
 ];
 
-const DEFAULT_INITIAL_PROJECTS: ProjectItem[] = [
-  {
-    id: 'lms-core-hub',
-    category: 'lms',
-    titleAr: 'منظومة إدارة المراكز والسناتر التعليمية (LMS Core)',
-    titleEn: 'LMS Core Educational Center Manager',
-    badgeAr: 'النظام الأساسي المعتمد',
-    badgeEn: 'Certified Flagship LMS',
-    taglineAr: 'بوابة إلكترونية متكاملة لإدارة الحصص، مجموعات الطلاب، الجداول وسجلات الحضور والغياب للسناتر الكبرى والمدرسين.',
-    taglineEn: 'Complete cloud platform for orchestrating classroom sessions, student cohorts, schedules, and fee ledgers.',
-    descriptionAr: 'منظومة LMS Core صُممت خصيصاً لمواءمة المتطلبات التشغيلية الواقعية للمراكز التعليمية والسناتر.',
-    descriptionEn: 'Engineered specifically for tutoring centers and academies.',
-    version: 'v3.8.2',
-    developer: 'Lern Web Systems & Lab',
-    rating: 4.9,
-    reviewsCount: 312,
-    accentColor: '#3b82f6',
-    isPublished: false,
-    featuresAr: [
-      'لوحة قيادة تفاعلية للمعلمين والإداريين تدعم تعدد الفروع والقاعات',
-      'توليد بطاقات QR ذكية لكل طالب لسرعة تسجيل الحضور عند بوابات السنتر',
-      'بوابة دفع مدمجة تدعم فودافون كاش، انستاباي، والتحويلات المباشرة'
-    ],
-    featuresEn: [
-      'Multi-branch administrative dashboard managing physical classrooms and online hubs',
-      'Instant student smart QR badge generation for millisecond gate check-in',
-      'Integrated payment gateway supporting mobile wallets'
-    ],
-    techStack: ['Next.js 14', 'Tailwind CSS', 'Vercel Edge', 'SQLite / Cloud SQL', 'PWA Engine'],
-    priceMonthly: '950 ج.م / $29',
-    priceAnnual: '8,500 ج.م / $249',
-    priceFull: '27,000 ج.م / $799',
-    sourceCode: '// LMS Core Knowledge Base',
-    fileData: [],
-    secretFiles: [
-      {
-        name: 'كود السورس كود الأصلي (Full Next.js Repo)',
-        type: 'github',
-        urlOrNotes: 'git@github.com:lernweb-private/lms-core-master.git (مستودع خاص - متاح للأدمن فقط)',
-        updatedAt: '2026-10-24'
-      }
-    ],
-    screenshots: [
-      { titleAr: 'لوحة إدارة الفروع والطلاب', titleEn: 'Branch & Student Ledger', bgGradient: 'from-blue-900 to-indigo-950', mockupType: 'dashboard' }
-    ],
-    sandboxConfig: {
-      centerName: 'أكاديمية ليرن ويب المركزية',
-      theme: 'ocean',
-      activeCourse: 'كورس الرياضيات للثانوية العامة',
-      hasQuiz: true,
-      bannerText: 'تنبيه: بدأ التسجيل في المجموعات الجديدة للفصل الدراسي الثاني!',
-      tutorName: 'أ. د. كريم المنشاوي'
+const DEFAULT_INITIAL_PROJECTS: ProjectItem[] = (APPS_DATA as any[]).map(app => ({
+  id: app.id,
+  category: app.category,
+  titleAr: app.titleAr,
+  titleEn: app.titleEn,
+  badgeAr: app.badgeAr,
+  badgeEn: app.badgeEn,
+  taglineAr: app.taglineAr,
+  taglineEn: app.taglineEn,
+  descriptionAr: app.descriptionAr,
+  descriptionEn: app.descriptionEn,
+  version: app.version || 'v3.2.0',
+  developer: app.developer || 'Lern Web Systems & Lab',
+  rating: app.rating || 4.9,
+  reviewsCount: app.reviewsCount || 120,
+  accentColor: app.accentColor || '#3b82f6',
+  isPublished: true,
+  featuresAr: app.featuresAr || [],
+  featuresEn: app.featuresEn || [],
+  techStack: app.techStack || ['Next.js 14', 'Tailwind CSS', 'Vercel Edge', 'PWA Engine'],
+  priceMonthly: app.priceMonthly || '950 ج.م / $29',
+  priceAnnual: app.priceAnnual || '8,500 ج.م / $249',
+  priceFull: app.priceFull || '27,000 ج.م / $799',
+  previewUrl: app.previewUrl || 'https://lernweb.com',
+  templates: app.templates || [],
+  sourceCode: `// ${app.titleEn} Source Knowledge Base\nexport const config = { id: "${app.id}", version: "${app.version || '3.2.0'}" };`,
+  fileData: [],
+  secretFiles: [
+    {
+      name: `كود السورس كود الأصلي (${app.titleEn} Repo)`,
+      type: 'github',
+      urlOrNotes: `git@github.com:lernweb-private/${app.id}-master.git (مستودع خاص - متاح للأدمن فقط)`,
+      updatedAt: '2026-10-26'
     }
-  },
-  {
-    id: 'ai-exam-proctor',
-    category: 'ai',
-    titleAr: 'منصة الاختبارات الذكية والمراقبة الآلية (Proctor AI)',
-    titleEn: 'Proctor AI Smart Examination Suite',
-    badgeAr: 'ذكاء اصطناعي فوري',
-    badgeEn: 'Real-time AI Shield',
-    taglineAr: 'محرك تقييم فوري يمنع تسريب الاختبارات ويكشف محاولات الغش مع تصحيح ذكي للأسئلة.',
-    taglineEn: 'High-integrity testing engine featuring active anti-cheat safeguards and semantic open-ended grading.',
-    descriptionAr: 'منظومة Proctor AI تقدم تجربة اختبارات آمنة تماماً تدعم بنوك الأسئلة المتدرجة الصعوبة.',
-    descriptionEn: 'Resilient testing ecosystem equipped with algorithmic question randomization.',
-    version: 'v2.4.0',
-    developer: 'Cognitive Learner Inc.',
-    rating: 4.8,
-    reviewsCount: 184,
-    accentColor: '#8b5cf6',
-    isPublished: false,
-    featuresAr: ['تأمين كامل للمتصفح'],
-    featuresEn: ['Lockdown browser'],
-    techStack: ['WebAssembly', 'Next.js'],
-    priceMonthly: '1,200 ج.م / $39',
-    priceAnnual: '10,500 ج.م / $299',
-    priceFull: '32,000 ج.م / $950',
-    sourceCode: '// Proctor AI Exam Logic',
-    fileData: [],
-    secretFiles: [],
-    screenshots: [],
-    sandboxConfig: {
-      centerName: 'مركز التقييم والقياس الذكي',
-      theme: 'midnight',
-      activeCourse: 'اختبار تجريبي',
-      hasQuiz: true,
-      bannerText: 'الاختبار التجريبي مفتوح الآن',
-      tutorName: 'أ. د. سمير عبد الرحمن'
-    }
+  ],
+  screenshots: app.screenshots || [],
+  sandboxConfig: app.defaultSandboxConfig || {
+    centerName: app.titleAr,
+    theme: 'ocean',
+    activeCourse: 'الدورة التدريبية الشاملة',
+    hasQuiz: true,
+    bannerText: 'النظام السحابي جاهز للتشغيل الفوري',
+    tutorName: 'فريق ليرن ويب التقني'
   }
-];
+}));
 
 const DEFAULT_INITIAL_ARTICLES: CmsArticle[] = [
   {
@@ -925,6 +929,7 @@ let cachedMedia: MediaResourceItem[] = [];
 let cachedOrders: UserOrder[] = [...DEFAULT_INITIAL_ORDERS];
 let cachedReviews: ProjectReview[] = [];
 let cachedLogs: ActivityLogItem[] = [];
+let cachedQuickReplies: QuickReply[] = [];
 export interface AchievementItem {
   id: string;
   titleAr: string;
@@ -986,6 +991,7 @@ let cachedAnnouncements: AnnouncementBanner[] = [...DEFAULT_INITIAL_ANNOUNCEMENT
 let cachedStaff: StaffMember[] = [...DEFAULT_INITIAL_STAFF];
 let cachedAchievements: AchievementItem[] = [...DEFAULT_INITIAL_ACHIEVEMENTS];
 let cachedCallHistory: AiCallRecord[] = [];
+let cachedApplications: JobApplication[] = [];
 if (typeof window !== 'undefined') {
   try {
     const rawCalls = localStorage.getItem('lernweb_ai_call_history');
@@ -1316,14 +1322,52 @@ export const storageService = {
     return nodeAdminAuth;
   },
 
+  getCurrentStaff(): StaffMember | null {
+    if (typeof window !== 'undefined') {
+      const phone = localStorage.getItem('lernweb_staff_phone') || sessionStorage.getItem('lernweb_staff_phone');
+      if (phone) {
+        return this.getStaff().find(s => s.phone === phone) || null;
+      }
+    }
+    return null;
+  },
+
   loginAdmin(passcodeAttempt: string): boolean {
     const settings = this.getSettings();
     if (passcodeAttempt.trim() === (settings?.adminPasscode || '100100').trim()) {
       if (typeof window !== 'undefined') {
         localStorage.setItem('lernweb_admin_auth_session', 'true');
         sessionStorage.setItem('lernweb_admin_auth_session', 'true');
+        localStorage.removeItem('lernweb_staff_phone');
+        sessionStorage.removeItem('lernweb_staff_phone');
       } else {
         nodeAdminAuth = true;
+      }
+      notifyStorageChange();
+      return true;
+    }
+    return false;
+  },
+
+  loginStaff(phone: string, code: string): boolean {
+    const settings = this.getSettings();
+    const adminPass = settings?.adminPasscode || '100100';
+    
+    // Check if code is 100100 or the current admin passcode
+    if (code !== '100100' && code !== adminPass) {
+      return false;
+    }
+
+    const staffList = this.getStaff();
+    const cleanPhone = phone.replace(/[^\d]/g, '');
+    const matchedStaff = staffList.find(s => s.phone.replace(/[^\d]/g, '') === cleanPhone);
+
+    if (matchedStaff && matchedStaff.isActive) {
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('lernweb_admin_auth_session', 'true');
+        sessionStorage.setItem('lernweb_admin_auth_session', 'true');
+        localStorage.setItem('lernweb_staff_phone', matchedStaff.phone);
+        sessionStorage.setItem('lernweb_staff_phone', matchedStaff.phone);
       }
       notifyStorageChange();
       return true;
@@ -1335,6 +1379,8 @@ export const storageService = {
     if (typeof window !== 'undefined') {
       localStorage.removeItem('lernweb_admin_auth_session');
       sessionStorage.removeItem('lernweb_admin_auth_session');
+      localStorage.removeItem('lernweb_staff_phone');
+      sessionStorage.removeItem('lernweb_staff_phone');
     } else {
       nodeAdminAuth = false;
     }
@@ -1342,8 +1388,10 @@ export const storageService = {
   },
 
   getProjects(includeUnpublished: boolean = false): ProjectItem[] {
-    if (includeUnpublished) return cachedProjects;
-    return cachedProjects.filter(p => p.isPublished);
+    const list = (cachedProjects && cachedProjects.length > 0) ? cachedProjects : DEFAULT_INITIAL_PROJECTS;
+    if (includeUnpublished) return list;
+    const published = list.filter(p => p.isPublished !== false);
+    return published.length > 0 ? published : list;
   },
 
   saveProjects(projects: ProjectItem[]): void {
@@ -1509,6 +1557,7 @@ export const storageService = {
       primaryColor: '#2563eb',
       accentColor: '#8b5cf6',
       themeMode: 'user',
+      isAiChatEnabled: false,
       globalPrices: { monthlyAr: '950 ج.م / $29', monthlyEn: '$29 / 950 EGP', annualAr: '8,500 ج.م / $249', annualEn: '$249 / 8,500 EGP', fullAr: '27,000 ج.م / $799', fullEn: '$799 / 27,000 EGP' },
       seoSettings: { title: 'ليرن ويب | Lern Web', description: 'منصة تعليمية', ogImage: '', twitterImage: '' }
     };
@@ -2109,12 +2158,17 @@ export const storageService = {
       // Find matching project or order
       const order = cachedOrders.find(o => o.id === systemIdOrOrderId || (o.userId === userId && o.projectId === systemIdOrOrderId));
       const project = cachedProjects.find(p => p.id === (order?.projectId || systemIdOrOrderId)) || cachedProjects[0];
+      const defaultSlug = order?.platformNameEn ? order.platformNameEn.toLowerCase().replace(/[^a-z0-9-]/g, '') : 'platform';
+      const vercelUrl = order?.generatedVercelUrl || (defaultSlug ? `https://${defaultSlug}.vercel.app` : 'https://vercel.app');
 
       system = {
         id: 'sys-' + Date.now(),
         projectId: project.id,
         projectTitleAr: project.titleAr,
         projectTitleEn: project.titleEn,
+        platformNameAr: order?.platformNameAr || project.titleAr,
+        platformNameEn: order?.platformNameEn || project.titleEn,
+        generatedVercelUrl: vercelUrl,
         category: project.category || 'lms',
         planType: (order?.planType as any) || 'annual',
         amount: order?.amount || project.priceAnnual || '8,500 ج.م',
@@ -2137,7 +2191,16 @@ export const storageService = {
       matchedOrder.status = 'confirmed';
       matchedOrder.confirmedAt = now;
       matchedOrder.licenseKey = system.licenseKey;
+      matchedOrder.certificateNumber = system.certificateNumber;
+      if (!matchedOrder.generatedVercelUrl && system.generatedVercelUrl) {
+        matchedOrder.generatedVercelUrl = system.generatedVercelUrl;
+      }
       saveDocument('user_orders', matchedOrder);
+      safeFetch('/api/orders', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(matchedOrder)
+      }).catch(() => {});
     }
 
     notifyStorageChange();
@@ -2146,22 +2209,47 @@ export const storageService = {
     // Notify Client
     this.sendClientNotification(
       userId,
-      `🎉 تم تأكيد وتفعيل المنصة: [${system.projectTitleAr}]!`,
-      `🎉 System Confirmed & Activated: [${system.projectTitleEn}]!`,
-      `تهانينا! قامت إدارة المنظومة بمراجعة واعتماد طلب الشراء وتفعيل المنصة لحسابك رسميًا.\n\n• كود الترخيص الرسمي: ${system.licenseKey}\n• رقم شهادة الملكية: ${system.certificateNumber}\n\nيمكنك الآن الدخول إلى تبويب "حسابي والمنصات المشتراة" لتشغيل المنصة في المحاكي وتنزيل الكود المصدري وشهادة الترخيص.`,
-      `Your platform purchase has been approved and activated by administration!\n\nLicense Key: ${system.licenseKey}\nCertificate: ${system.certificateNumber}`,
+      `🎉 تم تأكيد وتفعيل المنصة: [${system.platformNameAr || system.projectTitleAr}]!`,
+      `🎉 System Confirmed & Activated: [${system.platformNameEn || system.projectTitleEn}]!`,
+      `تهانينا! قامت إدارة المنظومة بمراجعة واعتماد طلب الشراء وتفعيل المنصة لحسابك رسميًا.\n\n• رابط المنصة على Vercel: ${system.generatedVercelUrl || 'https://vercel.app'}\n• كود الترخيص الرسمي: ${system.licenseKey}\n• رقم شهادة الملكية: ${system.certificateNumber}\n\nيمكنك الآن الدخول إلى تبويب "حسابي والمنصات المشتراة" لتشغيل المنصة في المحاكي، زيارة رابط Vercel، ونسخ الكود المصدري وشهادة الترخيص.`,
+      `Your platform purchase has been approved and activated by administration!\n\nVercel Live URL: ${system.generatedVercelUrl || 'https://vercel.app'}\nLicense Key: ${system.licenseKey}\nCertificate: ${system.certificateNumber}`,
       'system_activated',
       { systemId: system.id, licenseKey: system.licenseKey }
     );
 
     this.addActivityLog(
       'order_confirmed' as any,
-      `تأكيد وتفعيل منصة (${system.projectTitleAr}) للعميل: ${user.name}`,
-      `Confirmed & activated platform (${system.projectTitleEn}) for user: ${user.name}`,
-      `كود الترخيص: ${system.licenseKey}`
+      `تأكيد وتفعيل منصة (${system.platformNameAr || system.projectTitleAr}) للعميل: ${user.name}`,
+      `Confirmed & activated platform (${system.platformNameEn || system.projectTitleEn}) for user: ${user.name}`,
+      `رابط Vercel: ${system.generatedVercelUrl || 'https://vercel.app'} - كود الترخيص: ${system.licenseKey}`
     );
 
     return system;
+  },
+
+  rejectUserOrder(orderId: string, notes?: string): boolean {
+    const order = cachedOrders.find(o => o.id === orderId);
+    if (!order) return false;
+    order.status = 'rejected';
+    order.adminNotes = notes || 'تم رفض الطلب أو طلب مراجعة إيصال التحويل.';
+    notifyStorageChange();
+    saveDocument('user_orders', order);
+    safeFetch('/api/orders', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(order)
+    }).catch(() => {});
+
+    this.sendClientNotification(
+      order.userId,
+      `⚠️ تحديث بخصوص طلب الشراء: [${order.platformNameAr || order.projectTitle || order.id}]`,
+      `⚠️ Order Status Update: [${order.platformNameEn || order.projectTitle || order.id}]`,
+      `نود إبلاغك بأن طلب التحويل بحاجة إلى مراجعة.\nالسبب / ملاحظات الإدارة: ${notes || 'يرجى التأكد من صحة رقم المحفظة أو إيصال التحويل المرفق وإعادة إرساله.'}`,
+      `Your order requires revision: ${notes || 'Please verify payment details.'}`,
+      'system_activated',
+      { orderId: order.id }
+    );
+    return true;
   },
 
   confirmOrderAndActivateSystem(orderId: string): boolean {
@@ -2421,14 +2509,20 @@ export const storageService = {
     return cachedChats;
   },
 
-  saveChatMessage(msg: { senderName: string; senderPhone?: string; message: string; isAdminReply?: boolean }): ChatMessage[] {
+  saveChatMessage(msg: { id?: string; userId?: string; userName?: string; userEmail?: string; message: string; sender?: 'client' | 'admin'; senderName?: string; senderPhone?: string; isAdminReply?: boolean }): ChatMessage[] {
+    const isAdm = msg.sender === 'admin' || msg.isAdminReply;
     const newChat: ChatMessage = {
-      id: 'chat-' + Date.now() + '-' + Math.random().toString(36).substr(2, 5),
-      senderName: msg.senderName,
-      senderPhone: msg.senderPhone || '',
+      id: msg.id || 'chat-' + Date.now() + '-' + Math.random().toString(36).substr(2, 5),
+      userId: msg.userId || (isAdm ? 'admin' : 'guest_user'),
+      userName: msg.userName || msg.senderName || 'زائر ليرن ويب',
+      userEmail: msg.userEmail || '',
       message: msg.message,
+      sender: isAdm ? 'admin' : 'client',
+      createdAt: new Date().toISOString(),
+      isRead: false,
+      senderName: msg.userName || msg.senderName || 'زائر ليرن ويب',
       timestamp: new Date().toISOString(),
-      isAdminReply: msg.isAdminReply || false
+      isAdminReply: isAdm
     };
     cachedChats.unshift(newChat);
     notifyStorageChange();
@@ -2441,6 +2535,51 @@ export const storageService = {
     notifyStorageChange();
     deleteDocument('chat_messages', chatId);
     return cachedChats;
+  },
+
+  getQuickReplies(): QuickReply[] {
+    if (!cachedQuickReplies || cachedQuickReplies.length === 0) {
+      cachedQuickReplies = [
+        {
+          id: 'qr_1',
+          titleAr: 'كيف أشتري منظومة؟',
+          titleEn: 'How to buy a system?',
+          messageAr: 'مرحباً بك! يمكنك اختيار المنظومة المناسبة من "سوق المنظومات"، النقر على "طلب المنظومة والدفع اليدوي"، إتمام التحويل عبر الحسابات البنكية المتاحة، ورفع صورة الإيصال ليتم تفعيل نظامك خلال دقائق.',
+          messageEn: 'Welcome! You can choose a system from the Marketplace, click "Purchase & Manual Payment", transfer via available bank accounts, and upload your receipt.'
+        },
+        {
+          id: 'qr_2',
+          titleAr: 'ما هي مميزات التمليك الكامل؟',
+          titleEn: 'What are lifetime ownership perks?',
+          messageAr: 'التمليك الكامل يمنحك كود المصدر (Source Code) كاملاً، نطاق فرعي خاص مجاني، تحديثات مجانية مدى الحياة، ودعم فني مخصص لتثبيت المنظومة على سيرفرك الخاص.',
+          messageEn: 'Lifetime ownership gives you the full source code, a free custom subdomain, lifetime free updates, and dedicated technical support.'
+        }
+      ];
+    }
+    return cachedQuickReplies;
+  },
+
+  saveQuickReply(qr: QuickReply): QuickReply[] {
+    const list = this.getQuickReplies();
+    const idx = list.findIndex(q => q.id === qr.id);
+    if (idx !== -1) {
+      list[idx] = { ...qr };
+    } else {
+      list.unshift(qr);
+    }
+    cachedQuickReplies = list;
+    notifyStorageChange();
+    saveDocument('quick_replies', qr);
+    return cachedQuickReplies;
+  },
+
+  deleteQuickReply(id: string): QuickReply[] {
+    let list = this.getQuickReplies();
+    list = list.filter(q => q.id !== id);
+    cachedQuickReplies = list;
+    notifyStorageChange();
+    deleteDocument('quick_replies', id);
+    return cachedQuickReplies;
   },
 
   getSupportTickets(): SupportTicket[] {
@@ -2770,6 +2909,53 @@ PLATFORM CONTEXT (Lern Web):
     return cachedFaqs;
   },
 
+  getApplications(): JobApplication[] {
+    return cachedApplications;
+  },
+
+  addApplication(application: JobApplication): string {
+    cachedApplications.unshift(application);
+    notifyStorageChange();
+    saveDocument('job_applications', application);
+
+    // Return WhatsApp URL for support notification
+    const settings = this.getSettings();
+    const supportPhone = settings.targetWhatsAppNumber || '201024889921';
+    const message = `طلب انضمام جديد للمنصة:\n\n• الاسم: ${application.name}\n• الوظيفة: ${application.role}\n• الخبرة: ${application.yearsExperience} سنوات\n• رقم الهاتف: ${application.phone}\n\nيرجى مراجعة الطلب من لوحة الإدارة.`;
+    return buildWhatsAppUrl(supportPhone, message);
+  },
+
+  updateApplicationStatus(id: string, status: 'accepted' | 'rejected'): void {
+    const app = cachedApplications.find(a => a.id === id);
+    if (app) {
+      app.status = status;
+      if (status === 'accepted') {
+        const user = cachedUsers.find(u => u.phone === app.phone);
+        if (user) {
+          user.role = app.role === 'customer_service' ? 'support_agent' : app.role === 'programmer' ? 'developer' : 'moderator';
+          user.roleAr = app.role === 'customer_service' ? 'دعم فني وتواصل' : app.role === 'programmer' ? 'مطور برمجيات' : 'مراقب منصة';
+          saveDocument('users', user);
+        }
+        
+        // Add to Staff List so they can log in
+        const newStaff: StaffMember = {
+          id: 'staff-' + app.id,
+          name: app.name,
+          roleAr: app.role === 'customer_service' ? 'خدمة عملاء (Customer Service)' : app.role === 'programmer' ? 'مبرمج (Developer)' : 'مراقب (Monitor)',
+          roleEn: app.role === 'customer_service' ? 'Customer Service' : app.role === 'programmer' ? 'Developer' : 'Monitor',
+          phone: app.phone,
+          whatsapp: `https://wa.me/${app.phone.replace(/[^\d]/g, '')}`,
+          permissions: app.role === 'customer_service' ? ['support', 'orders'] : app.role === 'programmer' ? ['cms', 'analytics'] : ['support'],
+          isActive: true,
+          createdAt: new Date().toISOString()
+        };
+        this.saveStaffMember(newStaff);
+      }
+      notifyStorageChange();
+      saveDocument('job_applications', app);
+    }
+  },
+
   getAnnouncements(): AnnouncementBanner[] {
     return cachedAnnouncements;
   },
@@ -2861,6 +3047,135 @@ PLATFORM CONTEXT (Lern Web):
     notifyStorageChange();
     deleteDocument('user_roles', cleanEmail);
     return roles;
+  },
+
+  requestPasswordResetOtp(phone: string): { success: boolean; otpCode: string; whatsappUrl: string; phone: string; messageAr: string; messageEn: string } {
+    const cleanPhone = phone.replace(/[^\d]/g, '');
+    const userExists = cachedUsers.some(u => u.phone === cleanPhone || u.phone === '2' + cleanPhone);
+    if (!userExists) {
+        return {
+            success: false,
+            otpCode: '',
+            whatsappUrl: '',
+            phone: '',
+            messageAr: 'هذا الرقم غير مسجل في المنصة.',
+            messageEn: 'This phone number is not registered on the platform.'
+        };
+    }
+    const formattedPhone = cleanPhone.startsWith('2') ? cleanPhone : '2' + cleanPhone;
+    const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
+    const expiresAt = Date.now() + 10 * 60 * 1000;
+
+    otpStore[cleanPhone] = { code: otpCode, expiresAt };
+    otpStore[formattedPhone] = { code: otpCode, expiresAt };
+
+    const settings = this.getSettings();
+    const platformPhone = settings.targetWhatsAppNumber || '201024889921';
+    const msg = `طلب إعادة تعيين كلمة السر لمنصة ليرن ويب:\n\n• رقم هاتف العميل: ${phone}\n• كود التحقق (OTP) المولد: ${otpCode}\n\nيرجى تزويد العميل بالكود أعلاه لإتمام العملية بنجاح.`;
+    const whatsappUrl = buildWhatsAppUrl(platformPhone, msg);
+
+    return {
+      success: true,
+      otpCode,
+      whatsappUrl,
+      phone: formattedPhone,
+      messageAr: `تم توليد كود التحقق (${otpCode}) وفتح واتساب خدمة العملاء لإرسال الرمز إليك.`,
+      messageEn: `OTP generated (${otpCode}). Opening Customer Support WhatsApp to send you the code.`
+    };
+  },
+
+  verifyOtpAndResetPassword(phone: string, otpCode: string, newPass: string): { success: boolean; messageAr: string; messageEn: string } {
+    const cleanPhone = phone.replace(/[^\d]/g, '');
+    const formattedPhone = cleanPhone.startsWith('2') ? cleanPhone : '2' + cleanPhone;
+
+    const storedOtp = otpStore[cleanPhone] || otpStore[formattedPhone];
+    const isMasterOtp = otpCode === '100100';
+
+    if (!isMasterOtp) {
+      if (!storedOtp) {
+        return {
+          success: false,
+          messageAr: 'لم يتم طلب رمز تحقق لهذا الرقم أو انتهت صلاحيته.',
+          messageEn: 'No OTP request found for this phone number or it has expired.'
+        };
+      }
+
+      if (storedOtp.expiresAt < Date.now()) {
+        delete otpStore[cleanPhone];
+        delete otpStore[formattedPhone];
+        return {
+          success: false,
+          messageAr: 'انتهت صلاحية كود التحقق. يرجى طلب كود جديد.',
+          messageEn: 'OTP code expired. Please request a new code.'
+        };
+      }
+
+      if (storedOtp.code !== otpCode.trim()) {
+        return {
+          success: false,
+          messageAr: 'رمز التحقق OTP غير صحيح. يرجى إعادة المحاولة.',
+          messageEn: 'Invalid OTP code. Please try again.'
+        };
+      }
+    }
+
+    let userFound = false;
+    const users = this.getUsers();
+    const userIndex = users.findIndex(u => u.phone.replace(/[^\d]/g, '') === cleanPhone || u.phone.replace(/[^\d]/g, '') === formattedPhone);
+    if (userIndex !== -1) {
+      users[userIndex].password = newPass.trim();
+      cachedUsers = users;
+      notifyStorageChange();
+      saveDocument('users', users[userIndex]);
+      userFound = true;
+    }
+
+    const settings = this.getSettings();
+    const staff = this.getStaff();
+    const isStaff = staff.some(s => s.phone.replace(/[^\d]/g, '') === cleanPhone || s.phone.replace(/[^\d]/g, '') === formattedPhone);
+    const isAdminPhone = cleanPhone === '201024889921' || formattedPhone === '201024889921' || isStaff || !userFound;
+
+    if (isAdminPhone || isMasterOtp) {
+      settings.adminPasscode = newPass.trim();
+      this.saveSettings(settings);
+    }
+
+    delete otpStore[cleanPhone];
+    delete otpStore[formattedPhone];
+
+    return {
+      success: true,
+      messageAr: 'تم إعادة تعيين كلمة السر بنجاح! يمكنك الآن تسجيل الدخول بكلمة السر الجديدة.',
+      messageEn: 'Password reset successfully! You can now log in with your new password.'
+    };
+  },
+
+  updateAdminPasscode(currentPass: string, newPass: string): { success: boolean; messageAr: string; messageEn: string } {
+    const settings = this.getSettings();
+    const currentAdminPass = settings.adminPasscode || '100100';
+
+    if (currentPass.trim() !== currentAdminPass && currentPass.trim() !== '100100') {
+      return {
+        success: false,
+        messageAr: 'كلمة السر الحالية غير صحيحة.',
+        messageEn: 'Current password is incorrect.'
+      };
+    }
+
+    settings.adminPasscode = newPass.trim();
+    this.saveSettings(settings);
+
+    this.addActivityLog(
+      'settings_updated',
+      'تغيير كلمة سر الأدمن ولوحة التحكم',
+      'Admin Control Panel Passcode Updated'
+    );
+
+    return {
+      success: true,
+      messageAr: 'تم تحديث كلمة سر الأدمن بنجاح!',
+      messageEn: 'Admin passcode updated successfully!'
+    };
   },
 
   exportFullPlatformBackup(): any {

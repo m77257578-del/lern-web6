@@ -275,6 +275,7 @@ interface DatabaseSchema {
   users: any[];
   media_resources: any[];
   user_orders: any[];
+  orders?: any[];
   reviews: any[];
   activity_logs: any[];
   chat_messages: any[];
@@ -320,7 +321,7 @@ function loadDb(): DatabaseSchema {
         rating: 4.9,
         reviewsCount: 312,
         accentColor: '#3b82f6',
-        isPublished: false, // Unpublished by default as requested
+        isPublished: true,
         featuresAr: [
           'لوحة قيادة تفاعلية للمعلمين والإداريين تدعم تعدد الفروع والقاعات',
           'توليد بطاقات QR ذكية لكل طالب لسرعة تسجيل الحضور عند بوابات السنتر',
@@ -374,7 +375,7 @@ function loadDb(): DatabaseSchema {
         rating: 4.8,
         reviewsCount: 184,
         accentColor: '#8b5cf6',
-        isPublished: false, // Unpublished by default
+        isPublished: true,
         featuresAr: [
           'تأمين كامل للمتصفح مع منع النسخ وتصوير الشاشة وتبديل النوافذ',
           'بنوك أسئلة ديناميكية تعيد ترتيب الأسئلة والخيارات لكل طالب',
@@ -1118,6 +1119,18 @@ async function startServer() {
       res.json({ success: true });
     } catch (e) {
       res.status(500).json({ error: 'Failed to save order' });
+    }
+  });
+
+  app.delete('/api/orders/:id', async (req, res) => {
+    try {
+      const id = req.params.id;
+      db.user_orders = (db.user_orders || []).filter((x: any) => x.id !== id);
+      saveDb(db);
+      safeFdbDelete('user_orders', id);
+      res.json({ success: true });
+    } catch (e) {
+      res.status(500).json({ error: 'Failed to delete order' });
     }
   });
 
@@ -2050,6 +2063,68 @@ Context:
         modifiedFiles: []
       });
     }
+  });
+
+  // Online Payment Gateway (Kashier / Credit Card / Wallets Integration)
+  app.post('/api/payments/kashier/init', (req, res) => {
+    try {
+      const { orderId, amount, currency, customerName, customerEmail } = req.body;
+      const dbData = loadDb();
+      const settings = dbData.settings?.global || {};
+      const merchantId = settings.kashierMerchantId || process.env.KASHIER_MERCHANT_ID || 'MID-2026-LERNWEB';
+      const secretKey = settings.kashierSecretKey || process.env.KASHIER_SECRET_KEY || 'sec_key_lernweb_2026';
+      const mode = settings.kashierMode || 'test';
+
+      const pathStr = `/?payment=${merchantId}.${orderId}.${amount}.${currency || 'EGP'}`;
+      const crypto = require('crypto');
+      const hash = crypto.createHmac('sha256', secretKey).update(pathStr).digest('hex');
+
+      const baseUrl = mode === 'live' ? 'https://checkout.kashier.io' : 'https://test-checkout.kashier.io';
+      const paymentUrl = `${baseUrl}/?merchantId=${merchantId}&orderId=${orderId}&amount=${amount}&currency=${currency || 'EGP'}&hash=${hash}&mode=${mode}&display=ar`;
+
+      res.json({
+        success: true,
+        paymentUrl,
+        hash,
+        merchantId,
+        mode
+      });
+    } catch (err: any) {
+      res.status(500).json({ success: false, error: err?.message || 'Kashier payment init failed' });
+    }
+  });
+
+  app.post('/api/payments/kashier/webhook', (req, res) => {
+    console.log('Kashier Payment Webhook received:', req.body);
+    try {
+      const { orderId, transactionId, status } = req.body || {};
+      if (orderId) {
+        db = loadDb();
+        const ordersList = db.user_orders || db.orders || [];
+        const idx = ordersList.findIndex((o: any) => o.id === orderId || o.referenceId === orderId);
+        if (idx !== -1) {
+          ordersList[idx].status = status === 'SUCCESS' ? 'confirmed' : 'pending';
+          ordersList[idx].confirmedAt = new Date().toISOString();
+          ordersList[idx].adminNotes = `تم التأكيد تلقائياً عبر بوابة كاشير (Kashier Gateway). Ref: ${transactionId || 'KASHIER-OK'}`;
+          saveDb(db);
+        }
+      }
+    } catch (e) {
+      console.warn('Webhook order update warning:', e);
+    }
+    res.json({ received: true, status: 'PROCESSED' });
+  });
+
+  app.get('/api/payments/verify/:orderId', (req, res) => {
+    const { orderId } = req.params;
+    db = loadDb();
+    const ordersList = db.user_orders || db.orders || [];
+    const order = ordersList.find((o: any) => o.id === orderId);
+    res.json({
+      orderId,
+      status: order?.status === 'confirmed' ? 'SUCCESS' : 'PENDING',
+      order
+    });
   });
 
   // Backup

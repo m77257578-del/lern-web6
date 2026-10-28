@@ -14,7 +14,10 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 
-import AppStore from '../components/AppStore';
+import AppStore from './components/AppStore';
+import { FloatingChatBot } from './components/FloatingChatBot';
+import { DynamicClientWatermark } from './components/DynamicClientWatermark';
+import { SecurityLockModal } from './components/SecurityLockModal';
 import FaqSection from '../components/FaqSection';
 import PwaDiagnostics from '../components/PwaDiagnostics';
 import UserProfileSection from '../components/UserProfileSection';
@@ -26,7 +29,6 @@ import PlatformRating from './components/PlatformRating';
 import { WelcomeModal } from './components/WelcomeModal';
 import { SocialMediaBar } from './components/SocialMediaIcons';
 import ClientNotificationsSection from '../components/ClientNotificationsSection';
-import AiSupportChat from './components/AiSupportChat';
 import ClientSpendingChart from './components/ClientSpendingChart';
 import { PublishedProjectsSection } from './components/PublishedProjectsSection';
 import CmsArticlesSection from '../components/CmsArticlesSection';
@@ -44,6 +46,7 @@ import {
   getProjects, getSettings, getWallets, getMediaResources, getPlans, getNotifications, UserNotification, CmsArticle, AnnouncementBanner
 } from './services/storageService';
 import { subscribeToAuthChanges, signOutUser } from './services/firebaseService';
+import { securityService } from './services/securityService';
 
 const VSCODE_CODE_CATALOG: Record<string, { lang: string; title: string; code: string }> = {
   'app/page.jsx': {
@@ -125,7 +128,6 @@ export default function App() {
   // Admin Master State
   const [isAdmin, setIsAdmin] = useState(false);
   const [isAdminDashboardOpen, setIsAdminDashboardOpen] = useState(false);
-  const [isAiChatOpen, setIsAiChatOpen] = useState(false);
 
   // Client Authentication State
   const [isUserLoggedIn, setIsUserLoggedIn] = useState(false);
@@ -133,6 +135,29 @@ export default function App() {
   const [isClientLoginOpen, setIsClientLoginOpen] = useState(false);
   const [isSecretLoginOpen, setIsSecretLoginOpen] = useState(false);
   const [showTour, setShowTour] = useState(false);
+
+  // Dual Session & Security Lock State
+  const [isSessionLocked, setIsSessionLocked] = useState(false);
+  const [sessionLockReason, setSessionLockReason] = useState<'dual_session' | 'screen_capture' | 'blur_protection' | null>(null);
+
+  useEffect(() => {
+    // 1. Initialize security guards
+    const cleanupGuards = securityService.initSecurityGuards((msg) => {
+      showToast(msg, 'error');
+    });
+
+    // 2. Dual Active Session Monitor
+    const userIdForMonitor = currentUser?.id || currentUser?.phone || currentUser?.email || 'global_guest_session';
+    const cleanupSession = securityService.initDualSessionMonitor(userIdForMonitor, () => {
+      setSessionLockReason('dual_session');
+      setIsSessionLocked(true);
+    });
+
+    return () => {
+      cleanupGuards();
+      cleanupSession();
+    };
+  }, [currentUser, showToast]);
 
   useEffect(() => {
     if (activeTab === 'client-dashboard' && isUserLoggedIn && !localStorage.getItem('hasSeenTour')) {
@@ -178,7 +203,10 @@ export default function App() {
     }
   }, [userDrafts, isUserLoggedIn, isRtl, showToast]);
 
-  const [projects, setProjects] = useState<ProjectItem[]>(() => getProjects(false));
+  const [projects, setProjects] = useState<ProjectItem[]>(() => {
+    const p = getProjects(false);
+    return (p && p.length > 0) ? p : (APPS_DATA as any[]);
+  });
   const [adminSettings, setAdminSettings] = useState<AdminSettings>(() => getSettings());
   const [wallets, setWallets] = useState<WalletConfig[]>(() => getWallets());
   const [mediaItems, setMediaItems] = useState<MediaResourceItem[]>(() => {
@@ -196,7 +224,8 @@ export default function App() {
     setIsAdmin(isAdminActive);
     setIsUserLoggedIn(storageService.isUserLoggedIn());
     setCurrentUser(storageService.getCurrentUser());
-    setProjects(storageService.getProjects(isAdminActive));
+    const projs = storageService.getProjects(isAdminActive);
+    setProjects((projs && projs.length > 0) ? projs : (APPS_DATA as any[]));
     setAdminSettings(storageService.getSettings());
     setWallets(storageService.getWallets());
     const storedMedia = storageService.getMediaResources();
@@ -1249,113 +1278,7 @@ export default function App() {
         />
       )}
 
-      {/* Floating Support & Administration Chat Widget */}
-      {adminSettings.isAiChatEnabled !== false && (
-        <div className="fixed bottom-6 right-6 z-50">
-          <motion.button
-            onClick={() => setIsAiChatOpen(!isAiChatOpen)}
-            className={`relative rounded-full p-4 text-white shadow-2xl transition-all duration-300 cursor-pointer border border-white/20 overflow-hidden ${
-              isAiChatOpen 
-                ? 'bg-slate-800' 
-                : 'bg-gradient-to-br from-blue-600 to-indigo-700 hover:from-blue-500 hover:to-indigo-600'
-            }`}
-            title={isRtl ? 'المساعد الذكي والدعم الآلي المباشر (24/7)' : 'AI Assistant & Automated Support'}
-            whileHover={{ scale: 1.1, rotate: 5 }}
-            whileTap={{ scale: 0.9 }}
-            animate={isAiChatOpen ? {} : {
-              boxShadow: [
-                "0 0 0 0px rgba(37, 99, 235, 0.2)",
-                "0 0 0 15px rgba(37, 99, 235, 0)",
-                "0 0 0 0px rgba(37, 99, 235, 0.2)"
-              ],
-              scale: [1, 1.05, 1]
-            }}
-            transition={isAiChatOpen ? {} : {
-              boxShadow: {
-                duration: 2,
-                repeat: Infinity,
-                ease: "easeInOut"
-              },
-              scale: {
-                duration: 2,
-                repeat: Infinity,
-                ease: "easeInOut"
-              }
-            }}
-          >
-            {/* Animated Halo Ring */}
-            {!isAiChatOpen && (
-              <motion.div 
-                className="absolute inset-0 rounded-full border-2 border-blue-400/30"
-                animate={{ scale: [1, 1.5], opacity: [0.5, 0] }}
-                transition={{ duration: 1.5, repeat: Infinity, ease: "easeOut" }}
-              />
-            )}
-            
-            {isAiChatOpen ? (
-              <X className="w-8 h-8 relative z-10" />
-            ) : (
-              <motion.div 
-                className="relative"
-                whileHover="hover"
-              >
-                <Bot className="w-9 h-9 relative z-10" />
-                
-                {/* Floating Reactions on Hover */}
-                <motion.div 
-                  className="absolute -top-6 -left-2 text-lg"
-                  variants={{
-                    hover: { opacity: 1, y: -10, scale: 1.2, transition: { delay: 0.1 } }
-                  }}
-                  initial={{ opacity: 0, y: 0, scale: 0.5 }}
-                >
-                  😊
-                </motion.div>
-                <motion.div 
-                  className="absolute -top-8 left-6 text-lg"
-                  variants={{
-                    hover: { opacity: 1, y: -15, scale: 1.2, transition: { delay: 0.2 } }
-                  }}
-                  initial={{ opacity: 0, y: 0, scale: 0.5 }}
-                >
-                  ⚡
-                </motion.div>
-                <motion.div 
-                  className="absolute -top-4 -right-6 text-lg"
-                  variants={{
-                    hover: { opacity: 1, y: -5, scale: 1.2, transition: { delay: 0.3 } }
-                  }}
-                  initial={{ opacity: 0, y: 0, scale: 0.5 }}
-                >
-                  🤖
-                </motion.div>
 
-                <motion.div 
-                  className="absolute -top-1 -right-1"
-                  animate={{ y: [0, -3, 0] }}
-                  transition={{ duration: 1, repeat: Infinity }}
-                >
-                  <Sparkles className="w-4 h-4 text-amber-300" />
-                </motion.div>
-              </motion.div>
-            )}
-          </motion.button>
-
-          <AnimatePresence>
-            {isAiChatOpen && (
-              <motion.div 
-                className="fixed bottom-24 left-4 right-4 md:left-auto md:right-8 z-[9999] w-auto md:w-96 max-w-[calc(100vw-2rem)] shadow-2xl"
-                initial={{ opacity: 0, y: 50, scale: 0.9 }}
-                animate={{ opacity: 1, y: 0, scale: 1 }}
-                exit={{ opacity: 0, y: 50, scale: 0.9 }}
-                transition={{ type: "spring", damping: 25, stiffness: 300 }}
-              >
-                <AiSupportChat lang={lang} currentUser={currentUser} settings={adminSettings} />
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
-      )}
 
       <WelcomeModal
         isOpen={showWelcomeModal}
@@ -1368,6 +1291,34 @@ export default function App() {
           localStorage.setItem('hasSeenWelcome', 'true');
           setShowWelcomeModal(false);
           setActiveTab(tab as any);
+        }}
+      />
+
+      <FloatingChatBot
+        currentUser={currentUser}
+        isUserLoggedIn={isUserLoggedIn}
+        showToast={showToast}
+        onOpenLogin={() => setIsClientLoginOpen(true)}
+      />
+
+      {/* Dynamic Client Watermark Overlay */}
+      <DynamicClientWatermark
+        currentUser={currentUser}
+        isUserLoggedIn={isUserLoggedIn}
+      />
+
+      {/* Dual Session / Security Lock Modal (Non-Destructive) */}
+      <SecurityLockModal
+        isOpen={isSessionLocked}
+        lockReason={sessionLockReason}
+        currentUser={currentUser}
+        lang={lang}
+        onResolveLock={() => {
+          const userIdForMonitor = currentUser?.id || currentUser?.phone || currentUser?.email || 'global_guest_session';
+          securityService.takeOverSession(userIdForMonitor);
+          setIsSessionLocked(false);
+          setSessionLockReason(null);
+          showToast(isRtl ? 'تم استئناف الجلسة وتحديث الترخيص بنجاح!' : 'Session resumed cleanly!', 'success');
         }}
       />
     </div>

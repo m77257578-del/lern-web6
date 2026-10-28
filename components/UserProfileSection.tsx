@@ -14,10 +14,12 @@ import {
   User, Phone, Mail, Calendar, Rocket, ShieldCheck, 
   Save, CheckCircle2, AlertCircle, Edit3, Clock, Sparkles, LogOut, Trash2, BarChart3,
   MessageSquare, Send, Upload, Camera, Package, Globe, Check, History, Activity, ShieldAlert,
-  X, Filter, FileCheck, FileSpreadsheet, FileText, Download, Printer, Search
+  X, Filter, FileCheck, FileSpreadsheet, FileText, Download, Printer, Search,
+  Copy, ExternalLink, Key, Award, Eye, EyeOff
 } from 'lucide-react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { storageService } from '../src/services/storageService';
+import JoinPlatformForm from '../src/components/JoinPlatformForm';
 
 interface UserProfileSectionProps {
   currentUser?: any;
@@ -46,6 +48,72 @@ export default function UserProfileSection({
   const [errorMessage, setErrorMessage] = useState('');
   const [activityFilter, setActivityFilter] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
+  const [copiedLinkKey, setCopiedLinkKey] = useState<string | null>(null);
+
+  // Password change state
+  const [currentPassword, setCurrentPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [passErrorMsg, setPassErrorMsg] = useState('');
+  const [passSuccessMsg, setPassSuccessMsg] = useState('');
+  const [isChangingPass, setIsChangingPass] = useState(false);
+
+  const handlePasswordChange = (e: React.FormEvent) => {
+    e.preventDefault();
+    setPassErrorMsg('');
+    setPassSuccessMsg('');
+
+    if (currentUser?.password && currentPassword !== currentUser.password) {
+      setPassErrorMsg(isRtl ? 'كلمة المرور الحالية غير صحيحة' : 'Current password is incorrect');
+      return;
+    }
+
+    if (!newPassword || newPassword.length < 4) {
+      setPassErrorMsg(isRtl ? 'كلمة المرور الجديدة يجب أن تتكون من 4 خانات أو أرقام على الأقل' : 'New password must be at least 4 characters long');
+      return;
+    }
+
+    if (newPassword !== confirmPassword) {
+      setPassErrorMsg(isRtl ? 'كلمة المرور الجديدة وتأكيدها غير متطابقين' : 'New password and confirmation do not match');
+      return;
+    }
+
+    setIsChangingPass(true);
+    try {
+      const updated = storageService.updateUserProfile(currentUser.id, {
+        password: newPassword
+      });
+
+      storageService.addActivityLog(
+        'user_updated' as any,
+        `قام العميل (${currentUser.name}) بتغيير كلمة المرور الخاصة بحسابه بنجاح`,
+        `User (${currentUser.name}) changed account password successfully`
+      );
+
+      if (updated) {
+        onUserUpdated(updated);
+        setPassSuccessMsg(isRtl ? 'تم تغيير كلمة المرور بنجاح!' : 'Password changed successfully!');
+        setCurrentPassword('');
+        setNewPassword('');
+        setConfirmPassword('');
+        setTimeout(() => setPassSuccessMsg(''), 4000);
+      } else {
+        setPassErrorMsg(isRtl ? 'تعذر حفظ كلمة المرور، حاول مجدداً' : 'Failed to update password');
+      }
+    } catch {
+      setPassErrorMsg(isRtl ? 'حدث خطأ أثناء تغيير كلمة المرور' : 'Error updating password');
+    } finally {
+      setIsChangingPass(false);
+    }
+  };
+
+  const handleCopyText = (text: string, key: string) => {
+    navigator.clipboard.writeText(text);
+    setCopiedLinkKey(key);
+    setTimeout(() => setCopiedLinkKey(null), 2500);
+  };
 
   const activityData = [
     { day: isRtl ? 'السبت' : 'Sat', hours: 2 },
@@ -156,14 +224,49 @@ export default function UserProfileSection({
     }
   };
 
-  const purchasedSystems = currentUser?.purchasedSystems || [
-    { id: 'sys-1', title: isRtl ? 'منصة ليرن ويب التعليمية (LMS)' : 'Lern Web LMS Portal', license: isRtl ? 'تملك كامل للكود المصدري' : 'Full Source Buyout', date: '2026-10-15' },
-    { id: 'sys-2', title: isRtl ? 'مختبر الذكاء الاصطناعي والتخصيص' : 'AI Customization Studio', license: isRtl ? 'ترخيص سنوي معتمد' : 'Annual Enterprise', date: '2026-10-20' }
-  ];
-
-  // Dynamic Client Activity Log entries
+  // Dynamic Client Activity Log entries & Purchased Platforms
   const userOrders = storageService.getUserOrders().filter(o => o.userId === currentUser?.id);
   const userDrafts = storageService.getAiDrafts().filter(d => d.visitorId === currentUser?.id);
+  const officialSystems = currentUser?.purchasedSystems || [];
+
+  const unifiedPurchasedPlatforms = [
+    ...officialSystems.map((sys: any) => ({
+      id: sys.id,
+      titleAr: sys.platformNameAr || sys.projectTitleAr || sys.title,
+      titleEn: sys.platformNameEn || sys.projectTitleEn || sys.title,
+      category: sys.category || 'lms',
+      planType: sys.planType || 'full',
+      amount: sys.amount || '',
+      licenseKey: sys.licenseKey || 'LERN-2026-CERTIFIED',
+      certificateNumber: sys.certificateNumber || 'CERT-LW-2026-ACTIVE',
+      status: sys.status || 'active',
+      isConfirmed: true,
+      confirmedAt: sys.confirmedAt || sys.purchasedAt || sys.date,
+      vercelUrl: sys.generatedVercelUrl || (sys.platformNameEn ? `https://${sys.platformNameEn.toLowerCase().replace(/[^a-z0-9-]/g, '')}.vercel.app` : 'https://vercel.app'),
+      notes: sys.notes
+    })),
+    ...userOrders
+      .filter((ord: any) => ord.status !== 'confirmed')
+      .map((ord: any) => ({
+        id: ord.id,
+        titleAr: ord.platformNameAr || ord.projectTitle || (isRtl ? 'منصة قيد المراجعة والتحقق' : 'Platform Under Verification'),
+        titleEn: ord.platformNameEn || ord.projectTitle || 'Platform Under Verification',
+        category: 'lms',
+        planType: ord.planType || 'annual',
+        amount: ord.amount || '',
+        licenseKey: isRtl ? 'يُولد فور اعتماد السداد' : 'Generated upon approval',
+        certificateNumber: isRtl ? 'قيد المراجعة' : 'Pending',
+        status: ord.status || 'pending',
+        isConfirmed: false,
+        confirmedAt: ord.createdAt,
+        vercelUrl: ord.generatedVercelUrl || (ord.platformNameEn ? `https://${ord.platformNameEn.toLowerCase().replace(/[^a-z0-9-]/g, '')}.vercel.app` : 'https://vercel.app'),
+        senderPhone: ord.senderPhone,
+        referenceId: ord.referenceId,
+        paymentMethod: ord.paymentMethod,
+        notes: ord.adminNotes
+      }))
+  ];
+  const purchasedSystems = unifiedPurchasedPlatforms;
 
   const rawLogs = [
     {
@@ -249,11 +352,13 @@ export default function UserProfileSection({
   const filteredSystems = purchasedSystems.filter((sys: any) => {
     if (!searchQuery.trim()) return true;
     const q = searchQuery.toLowerCase().trim();
-    const title = (sys.title || '').toLowerCase();
-    const license = (sys.license || '').toLowerCase();
-    const date = (sys.date || '').toLowerCase();
+    const titleAr = (sys.titleAr || sys.title || '').toLowerCase();
+    const titleEn = (sys.titleEn || sys.title || '').toLowerCase();
+    const license = (sys.licenseKey || sys.license || '').toLowerCase();
+    const vercel = (sys.vercelUrl || '').toLowerCase();
+    const status = (sys.status || '').toLowerCase();
 
-    return title.includes(q) || license.includes(q) || date.includes(q);
+    return titleAr.includes(q) || titleEn.includes(q) || license.includes(q) || vercel.includes(q) || status.includes(q);
   });
 
   // Handle Exporting Activity Log to Excel (CSV with UTF-8 BOM)
@@ -723,42 +828,217 @@ export default function UserProfileSection({
         </div>
       </div>
 
-      {/* Purchased Systems & Platforms List */}
-      <div className="rounded-2xl border border-slate-800 bg-slate-950 p-6 space-y-4">
-        <div className="flex items-center justify-between border-b border-slate-800 pb-3">
-          <h4 className="text-sm font-bold text-white flex items-center gap-2">
-            <Package className="w-4 h-4 text-blue-400" />
-            <span>{isRtl ? 'الأنظمة والمنصات التي قمت بشرائها واشتراكها:' : 'Purchased Systems & Platforms:'}</span>
-          </h4>
-          <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-blue-500/20 text-blue-300 border border-blue-500/30">
-            {filteredSystems.length} {isRtl ? 'نظام معتمد' : 'Systems'}
+      {/* Purchased Systems & Platforms List - Section 4: My Purchased Platforms */}
+      <div className="rounded-2xl border border-slate-800 bg-slate-950 p-6 space-y-5">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-slate-800 pb-4">
+          <div className="space-y-1">
+            <h4 className="text-base font-bold text-white flex items-center gap-2">
+              <Package className="w-5 h-5 text-blue-400" />
+              <span>{isRtl ? 'منصاتي المشتراة والمفعلة (إدارة الأنظمة والروابط)' : 'My Purchased Platforms (Systems & Live Links)'}</span>
+            </h4>
+            <p className="text-xs text-slate-400">
+              {isRtl 
+                ? 'استعراض كافة المنصات المشتراة، أنظمة الاشتراك، روابط الإنتاج Vercel، ومفاتيح التراخيص الرسمية.' 
+                : 'Manage your acquired platforms, active subscription tiers, production Vercel URLs, and license certificates.'}
+            </p>
+          </div>
+          <span className="px-3 py-1 rounded-full text-xs font-bold bg-blue-500/20 text-blue-300 border border-blue-500/30 shrink-0">
+            {filteredSystems.length} {isRtl ? 'منصة مسجلة' : 'Registered Platforms'}
           </span>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           {filteredSystems.length === 0 ? (
-            <div className="col-span-full text-center py-6 text-slate-400 text-xs">
-              {isRtl ? 'لا توجد أنظمة أو طلبات مطابقة للبحث' : 'No purchased systems matching search query'}
+            <div className="col-span-full text-center py-12 rounded-xl border border-dashed border-slate-800 bg-slate-900/50 space-y-3">
+              <Package className="w-10 h-10 text-slate-600 mx-auto" />
+              <p className="text-sm text-slate-400 font-medium">
+                {isRtl ? 'لا توجد أنظمة أو طلبات شراء مسجلة حالياً' : 'No purchased systems found yet.'}
+              </p>
+              <p className="text-xs text-slate-500 max-w-md mx-auto">
+                {isRtl 
+                  ? 'يمكنك تصفح متجر المنصات واختيار نموذجك المفضل وطلب التفعيل بالدفع اليدوي السريع.' 
+                  : 'Browse our project store, customize your platform name, and checkout via manual wallet payment.'}
+              </p>
             </div>
           ) : (
-            filteredSystems.map((sys: any, idx: number) => (
-              <div key={sys.id || idx} className="rounded-xl border border-slate-800 bg-slate-900 p-4 space-y-2 flex flex-col justify-between shadow-md">
-                <div className="space-y-1">
-                  <div className="flex items-center justify-between text-xs">
-                    <span className="px-2 py-0.5 rounded bg-blue-600/20 text-blue-400 font-bold">{sys.license}</span>
-                    <span className="text-slate-400 font-mono text-[11px]">{sys.date}</span>
+            filteredSystems.map((sys: any, idx: number) => {
+              const isPending = sys.status === 'pending';
+              const isRejected = sys.status === 'rejected';
+              const isActive = sys.status === 'active' || sys.status === 'confirmed' || (!isPending && !isRejected);
+              const tierLabel = sys.planType === 'monthly'
+                ? (isRtl ? 'اشتراك شهري' : 'Monthly Tier')
+                : sys.planType === 'annual'
+                ? (isRtl ? 'اشتراك سنوي (خصم خاص)' : 'Annual Subscription')
+                : (isRtl ? 'تمليك دائم مدى الحياة' : 'Lifetime Ownership');
+
+              const vercelLink = sys.vercelUrl || (sys.titleEn ? `https://${sys.titleEn.toLowerCase().replace(/[^a-z0-9-]/g, '')}.vercel.app` : 'https://vercel.app');
+
+              return (
+                <div 
+                  key={sys.id || idx} 
+                  className={`rounded-2xl border p-5 space-y-4 flex flex-col justify-between transition-all duration-300 ${
+                    isActive 
+                      ? 'border-emerald-500/30 bg-slate-900/90 hover:border-emerald-500/50 hover:shadow-lg hover:shadow-emerald-950/20' 
+                      : isRejected
+                      ? 'border-rose-500/30 bg-rose-950/10'
+                      : 'border-amber-500/30 bg-slate-900/90 hover:border-amber-500/50 hover:shadow-lg hover:shadow-amber-950/20'
+                  }`}
+                >
+                  {/* Top Bar: Badges & Status */}
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="flex flex-wrap items-center gap-1.5">
+                      <span className="px-2.5 py-0.5 rounded-md text-[11px] font-bold bg-blue-500/20 text-blue-300 border border-blue-500/30">
+                        {tierLabel}
+                      </span>
+                      {sys.amount && (
+                        <span className="px-2 py-0.5 rounded-md text-[10px] font-mono font-bold bg-slate-800 text-slate-300">
+                          {sys.amount}
+                        </span>
+                      )}
+                    </div>
+
+                    {/* Status Badge */}
+                    <div>
+                      {isActive && (
+                        <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/40">
+                          <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                          <span>{isRtl ? 'مفعل وجاهز للعمل' : 'Active & Deployed'}</span>
+                        </span>
+                      )}
+                      {isPending && (
+                        <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-500/20 text-amber-400 border border-amber-500/40">
+                          <Clock className="w-3 h-3 text-amber-400 animate-spin" />
+                          <span>{isRtl ? 'قيد المراجعة والتحقق' : 'Under Verification'}</span>
+                        </span>
+                      )}
+                      {isRejected && (
+                        <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-rose-500/20 text-rose-400 border border-rose-500/40">
+                          <AlertCircle className="w-3 h-3" />
+                          <span>{isRtl ? 'مرفوض / يحتاج تعديل' : 'Rejected'}</span>
+                        </span>
+                      )}
+                    </div>
                   </div>
-                  <h5 className="font-bold text-sm text-white">{sys.title}</h5>
+
+                  {/* Platform Titles */}
+                  <div className="space-y-1">
+                    <h5 className="font-bold text-base text-white flex items-center gap-2">
+                      <Sparkles className="w-4 h-4 text-amber-400 shrink-0" />
+                      <span>{isRtl ? (sys.titleAr || sys.title) : (sys.titleEn || sys.title)}</span>
+                    </h5>
+                    {sys.titleEn && sys.titleAr && (
+                      <p className="text-xs text-slate-400 font-mono">
+                        {isRtl ? sys.titleEn : sys.titleAr}
+                      </p>
+                    )}
+                  </div>
+
+                  {/* Generated Production Vercel Link Box */}
+                  <div className="p-3 rounded-xl bg-slate-950/80 border border-slate-800 space-y-2">
+                    <div className="flex items-center justify-between text-[11px] text-slate-400 font-medium">
+                      <span className="flex items-center gap-1 text-blue-400">
+                        <Globe className="w-3.5 h-3.5" />
+                        <span>{isRtl ? 'رابط الإنتاج المباشر (Vercel):' : 'Production Vercel Link:'}</span>
+                      </span>
+                      <span className="text-[10px] text-slate-500">
+                        {isActive ? (isRtl ? 'رابط حي' : 'Live') : (isRtl ? 'محجوز لك' : 'Reserved')}
+                      </span>
+                    </div>
+
+                    <div className="flex items-center justify-between gap-2 bg-slate-900 px-2.5 py-1.5 rounded-lg border border-slate-800">
+                      <span className="text-xs font-mono text-cyan-300 truncate select-all dir-ltr" dir="ltr">
+                        {vercelLink}
+                      </span>
+                      <div className="flex items-center gap-1 shrink-0">
+                        <button
+                          type="button"
+                          onClick={() => handleCopyText(vercelLink, `vercel-${sys.id || idx}`)}
+                          className="p-1 rounded hover:bg-slate-800 text-slate-400 hover:text-white transition flex items-center gap-1 text-[10px]"
+                          title={isRtl ? 'نسخ الرابط' : 'Copy URL'}
+                        >
+                          {copiedLinkKey === `vercel-${sys.id || idx}` ? (
+                            <Check className="w-3.5 h-3.5 text-emerald-400" />
+                          ) : (
+                            <Copy className="w-3.5 h-3.5" />
+                          )}
+                        </button>
+                        <a
+                          href={vercelLink}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="p-1 rounded hover:bg-slate-800 text-blue-400 hover:text-blue-300 transition"
+                          title={isRtl ? 'فتح الرابط في نافذة جديدة' : 'Open in new tab'}
+                        >
+                          <ExternalLink className="w-3.5 h-3.5" />
+                        </a>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* License & Certification Details */}
+                  <div className="grid grid-cols-2 gap-2 text-[11px]">
+                    <div className="p-2.5 rounded-lg bg-slate-950/50 border border-slate-800/80 space-y-1">
+                      <div className="flex items-center gap-1 text-slate-400 text-[10px]">
+                        <Key className="w-3 h-3 text-amber-400" />
+                        <span>{isRtl ? 'مفتاح الترخيص:' : 'License Key:'}</span>
+                      </div>
+                      <div className="flex items-center justify-between gap-1">
+                        <span className="font-mono text-slate-200 text-[11px] truncate select-all">
+                          {sys.licenseKey || sys.license || 'LERN-2026-CERTIFIED'}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => handleCopyText(sys.licenseKey || sys.license || 'LERN-2026-CERTIFIED', `lic-${sys.id || idx}`)}
+                          className="text-slate-400 hover:text-white p-0.5"
+                        >
+                          {copiedLinkKey === `lic-${sys.id || idx}` ? (
+                            <Check className="w-3 h-3 text-emerald-400" />
+                          ) : (
+                            <Copy className="w-3 h-3" />
+                          )}
+                        </button>
+                      </div>
+                    </div>
+
+                    <div className="p-2.5 rounded-lg bg-slate-950/50 border border-slate-800/80 space-y-1">
+                      <div className="flex items-center gap-1 text-slate-400 text-[10px]">
+                        <Award className="w-3 h-3 text-purple-400" />
+                        <span>{isRtl ? 'رقم الشهادة:' : 'Certificate ID:'}</span>
+                      </div>
+                      <span className="font-mono text-purple-300 text-[11px] truncate block select-all">
+                        {sys.certificateNumber || 'CERT-LW-2026-ACTIVE'}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Payment / Verification Details if Pending */}
+                  {isPending && (
+                    <div className="text-[11px] p-2.5 rounded-lg bg-amber-500/10 border border-amber-500/20 text-amber-200 space-y-1">
+                      <div className="flex items-center justify-between">
+                        <span>{isRtl ? 'المحفظة / وسيلة التحويل:' : 'Payment Method:'} <strong>{sys.paymentMethod || 'Vodafone Cash'}</strong></span>
+                        {sys.senderPhone && <span>{isRtl ? 'رقم المحول:' : 'Sender:'} {sys.senderPhone}</span>}
+                      </div>
+                      {sys.referenceId && (
+                        <div>{isRtl ? 'كود العملية المرجي:' : 'Ref Code:'} <span className="font-mono font-bold select-all">{sys.referenceId}</span></div>
+                      )}
+                      <div className="text-[10px] text-amber-300/80 pt-1 border-t border-amber-500/20">
+                        {isRtl ? 'يقوم فريق الإدارة بمطابقة الإيصال وتفعيل النظام في غضون دقائق معدودة.' : 'Admin team is verifying your receipt. Activation completes shortly.'}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Footer note & activation date */}
+                  <div className="pt-2 flex items-center justify-between text-[11px] border-t border-slate-800 text-slate-400">
+                    <span className="font-mono text-[10px]">
+                      {sys.confirmedAt ? new Date(sys.confirmedAt).toLocaleDateString(isRtl ? 'ar-EG' : 'en-US') : ''}
+                    </span>
+                    <span className="text-[11px] font-semibold text-slate-300">
+                      Lern Web Enterprise Cloud
+                    </span>
+                  </div>
                 </div>
-                <div className="pt-2 flex items-center justify-between text-[11px] text-emerald-400 font-semibold border-t border-slate-800/80">
-                  <span className="flex items-center gap-1">
-                    <Check className="w-3.5 h-3.5" />
-                    <span>{isRtl ? 'جاهز للتشغيل والتحميل' : 'Ready to Run & Download'}</span>
-                  </span>
-                  <span className="font-mono text-slate-400">Lern Web Cloud</span>
-                </div>
-              </div>
-            ))
+              );
+            })
           )}
         </div>
       </div>
@@ -781,6 +1061,12 @@ export default function UserProfileSection({
           </ResponsiveContainer>
         </div>
       </div>
+
+      {/* Join Platform Section (Conditional) */}
+      {storageService.getSettings().isJoinPlatformEnabled && (
+        <JoinPlatformForm lang={lang} />
+      )}
+
 
       {/* Edit Contact Information & Avatar Form */}
       <div className="rounded-2xl border border-slate-800 bg-slate-950 p-6 space-y-5">
@@ -879,6 +1165,111 @@ export default function UserProfileSection({
             >
               <Save className="w-4 h-4" />
               <span>{isRtl ? 'حفظ التغييرات' : 'Save Profile Changes'}</span>
+            </button>
+          </div>
+        </form>
+      </div>
+
+      {/* Change Password Card for Client */}
+      <div className="rounded-2xl border border-amber-500/30 bg-slate-950 p-6 space-y-5 shadow-xl">
+        <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+          <h4 className="text-base font-bold text-white flex items-center gap-2">
+            <Key className="w-4 h-4 text-amber-400" />
+            <span>{isRtl ? 'تغيير كلمة المرور والخصوصية:' : 'Change Account Password & Security:'}</span>
+          </h4>
+          <span className="text-xs text-amber-400/80 font-medium">
+            {isRtl ? 'تغيير كلمة السر الخاصة بحسابك' : 'Update your personal password'}
+          </span>
+        </div>
+
+        {passErrorMsg && (
+          <div className="p-3.5 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-400 text-xs font-bold flex items-center gap-2">
+            <AlertCircle className="w-4 h-4 shrink-0" />
+            <span>{passErrorMsg}</span>
+          </div>
+        )}
+
+        {passSuccessMsg && (
+          <div className="p-3.5 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-bold flex items-center gap-2 animate-fadeIn">
+            <CheckCircle2 className="w-4 h-4 shrink-0" />
+            <span>{passSuccessMsg}</span>
+          </div>
+        )}
+
+        <form onSubmit={handlePasswordChange} className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {/* Current Password */}
+            <div className="space-y-1.5">
+              <label className="text-xs font-bold text-slate-300 flex items-center gap-1.5">
+                <Key className="w-3.5 h-3.5 text-slate-400" />
+                <span>{isRtl ? 'كلمة المرور الحالية:' : 'Current Password:'}</span>
+              </label>
+              <div className="relative">
+                <input
+                  type={showCurrentPassword ? 'text' : 'password'}
+                  value={currentPassword}
+                  onChange={(e) => setCurrentPassword(e.target.value)}
+                  placeholder={isRtl ? 'أدخل كلمة السر الحالية' : 'Current password'}
+                  className="w-full rounded-xl border border-slate-800 bg-slate-900 pl-10 pr-4 py-2.5 text-xs md:text-sm text-white focus:border-amber-500 focus:outline-none transition font-mono"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowCurrentPassword(!showCurrentPassword)}
+                  className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white cursor-pointer"
+                >
+                  {showCurrentPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
+              </div>
+            </div>
+
+            {/* New Password */}
+            <div className="space-y-1.5">
+              <label className="text-xs font-bold text-slate-300 flex items-center gap-1.5">
+                <Key className="w-3.5 h-3.5 text-amber-400" />
+                <span>{isRtl ? 'كلمة المرور الجديدة:' : 'New Password:'}</span>
+              </label>
+              <div className="relative">
+                <input
+                  type={showNewPassword ? 'text' : 'password'}
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  placeholder={isRtl ? 'أدخل كلمة السر الجديدة' : 'New password'}
+                  className="w-full rounded-xl border border-slate-800 bg-slate-900 pl-10 pr-4 py-2.5 text-xs md:text-sm text-white focus:border-amber-500 focus:outline-none transition font-mono"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowNewPassword(!showNewPassword)}
+                  className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white cursor-pointer"
+                >
+                  {showNewPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
+              </div>
+            </div>
+
+            {/* Confirm New Password */}
+            <div className="space-y-1.5">
+              <label className="text-xs font-bold text-slate-300 flex items-center gap-1.5">
+                <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
+                <span>{isRtl ? 'تأكيد كلمة المرور الجديدة:' : 'Confirm New Password:'}</span>
+              </label>
+              <input
+                type="password"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                placeholder={isRtl ? 'أعد كتابة كلمة السر' : 'Confirm new password'}
+                className="w-full rounded-xl border border-slate-800 bg-slate-900 px-4 py-2.5 text-xs md:text-sm text-white focus:border-amber-500 focus:outline-none transition font-mono"
+              />
+            </div>
+          </div>
+
+          <div className="flex justify-end pt-2">
+            <button
+              type="submit"
+              disabled={isChangingPass}
+              className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-500 hover:to-amber-600 px-6 py-2.5 text-xs md:text-sm font-bold text-white shadow-lg shadow-amber-600/20 transition active:scale-95 cursor-pointer disabled:opacity-50"
+            >
+              <Key className="w-4 h-4" />
+              <span>{isChangingPass ? (isRtl ? 'جاري التحديث...' : 'Updating...') : (isRtl ? 'تحديث كلمة المرور' : 'Update Password')}</span>
             </button>
           </div>
         </form>

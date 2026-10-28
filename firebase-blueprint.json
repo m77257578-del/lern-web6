@@ -104,6 +104,25 @@
         "type": { "type": "string", "enum": ["info", "success", "warning", "urgent"] }
       },
       "required": ["id", "messageAr", "isActive"]
+    },
+    "JobApplication": {
+      "title": "JobApplication",
+      "description": "An application from a potential team member.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "phone": { "type": "string" },
+        "role": { "type": "string", "enum": ["customer_service", "programmer", "monitor"] },
+        "status": { "type": "string", "enum": ["pending", "accepted", "rejected"] },
+        "profileLink": { "type": "string" },
+        "gitHubLink": { "type": "string" },
+        "nationalIdPhotoUrl": { "type": "string" },
+        "yearsExperience": { "type": "number" },
+        "reason": { "type": "string" },
+        "appliedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "name", "phone", "role", "status", "appliedAt"]
     }
   },
   "firestore": {
@@ -134,6 +153,10 @@
     "/announcements/{announcementId}": {
       "schema": "Announcement",
       "description": "CMS announcements collection"
+    },
+    "/job_applications/{applicationId}": {
+      "schema": "JobApplication",
+      "description": "Team join applications collection"
     }
   }
 }

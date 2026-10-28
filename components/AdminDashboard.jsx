@@ -22,7 +22,7 @@ import {
   BarChart3, TrendingUp, Users, Download, Activity, PieChart as PieIcon,
   CheckSquare, Square, Settings, Sun, Moon, Monitor,
   Clock, History, ListFilter, Search, Globe, Send, Bot, User, Crown, HelpCircle, Sliders, Zap, Cpu, Key,
-  Bell, UserX, UserCheck, Award, Ban, Package, Copy, FileCheck
+  Bell, UserX, UserCheck, Award, Ban, Package, Copy, FileCheck, ShoppingCart, CreditCard, Briefcase
 } from 'lucide-react';
 import { 
   ResponsiveContainer, AreaChart, Area, BarChart, Bar, 
@@ -33,6 +33,9 @@ import SeoManagement from './SeoManagement';
 import { translations } from '../src/data/translations';
 import { AVAILABLE_SOCIAL_APPS, SocialAppSvgIcon, getSocialAppMeta } from '../src/components/SocialMediaIcons';
 import { PublishedProjectsSection } from '../src/components/PublishedProjectsSection';
+import { AdminAnalyticsDashboard } from '../src/components/AdminAnalyticsDashboard';
+import { StaffManager } from '../src/components/StaffManager';
+import AdminJobApplications from '../src/components/AdminJobApplications';
 
 export default function AdminDashboard({ 
   lang = 'ar', 
@@ -65,9 +68,21 @@ export default function AdminDashboard({
   const [publishedProjects, setPublishedProjects] = useState(() => storageService.getPublishedProjects());
   const [adminNotifications, setAdminNotifications] = useState(() => storageService.getAdminNotifications());
   const [showAdminNotifsModal, setShowAdminNotifsModal] = useState(false);
+  const [orders, setOrders] = useState(() => storageService.getUserOrders());
+  const [orderFilter, setOrderFilter] = useState('all'); // 'all' | 'pending' | 'confirmed' | 'rejected'
+  const [orderSearchQuery, setOrderSearchQuery] = useState('');
+  const [selectedReceiptImage, setSelectedReceiptImage] = useState(null);
+  const [rejectModalOrder, setRejectModalOrder] = useState(null);
+  const [rejectNotesInput, setRejectNotesInput] = useState('');
   const [userSearchQuery, setUserSearchQuery] = useState('');
   const [userRoleFilter, setUserRoleFilter] = useState('all');
+  const [applications, setApplications] = useState(() => storageService.getApplications());
   
+  // Admin Passcode Management State
+  const [currentPasscodeInput, setCurrentPasscodeInput] = useState('');
+  const [newPasscodeInput, setNewPasscodeInput] = useState('');
+  const [passcodeMsg, setPasscodeMsg] = useState(null);
+
   // User Management Modals
   const [selectedUserForRole, setSelectedUserForRole] = useState(null);
   const [newRoleSelect, setNewRoleSelect] = useState('vip');
@@ -103,6 +118,13 @@ export default function AdminDashboard({
     monthlyAr: '', monthlyEn: '', annualAr: '', annualEn: '', fullAr: '', fullEn: ''
   });
 
+  const [quickRepliesList, setQuickRepliesList] = useState(() => storageService.getQuickReplies());
+  const [chatMessagesList, setChatMessagesList] = useState(() => storageService.getChatMessages());
+  const [newQrTitleAr, setNewQrTitleAr] = useState('');
+  const [newQrTitleEn, setNewQrTitleEn] = useState('');
+  const [newQrMsgAr, setNewQrMsgAr] = useState('');
+  const [newQrMsgEn, setNewQrMsgEn] = useState('');
+
   // CMS Article form state
   const [newArtTitle, setNewArtTitle] = useState('');
   const [newArtCategory, setNewArtCategory] = useState(isRtl ? 'تقنية وتطوير' : 'Tech & Dev');
@@ -127,6 +149,61 @@ export default function AdminDashboard({
   
   const [saveSuccessMsg, setSaveSuccessMsg] = useState('');
   const [editingProject, setEditingProject] = useState(null);
+  
+  // Staff Permission Enforcement
+  const currentStaff = storageService.getCurrentStaff();
+  const isMasterAdmin = !currentStaff; 
+  
+  const isSectionAllowed = (sectionId) => {
+    if (isMasterAdmin) return true;
+    const perms = currentStaff.permissions || [];
+    const supportSections = ['tickets', 'drafts', 'reviews', 'activity', 'job-applications'];
+    const orderSections = ['orders', 'wallets'];
+    const cmsSections = ['cms-articles', 'cms-faqs', 'cms-announcements', 'media', 'achievements', 'published-portfolio', 'projects'];
+    const analyticsSections = ['analytics', 'activity'];
+    const settingsSections = ['preferences', 'seo', 'social', 'staff', 'user-roles', 'backup', 'users', 'ai-keys', 'job-applications'];
+    if (perms.includes('support') && supportSections.includes(sectionId)) return true;
+    if (perms.includes('orders') && orderSections.includes(sectionId)) return true;
+    if (perms.includes('cms') && cmsSections.includes(sectionId)) return true;
+    if (perms.includes('analytics') && analyticsSections.includes(sectionId)) return true;
+    if (perms.includes('settings') && settingsSections.includes(sectionId)) return true;
+    return false;
+  };
+
+  const adminSections = [
+    { id: 'ai-keys', label: isRtl ? '🤖 المساعد والردود الذكية' : '🤖 Assistant & Smart Replies', icon: Bot, highlight: true },
+    { id: 'preferences', label: isRtl ? '🎨 تصميم ومظهر المنصة الشامل' : '🎨 Platform Design & Theme', icon: Settings },
+    { id: 'staff', label: isRtl ? '👥 إدارة المشرفين وخدمة العملاء' : '👥 Staff & Support Team', icon: Users, count: staffList.length },
+    { id: 'user-roles', label: isRtl ? '🛡️ أدوار وصلاحيات المستخدمين' : '🛡️ User Roles & Permissions', icon: ShieldCheck, count: Object.keys(userRolesMap).length },
+    { id: 'orders', label: isRtl ? '🛒 طلبات الشراء والدفع اليدوي' : '🛒 Manual Orders & Payments', icon: ShoppingCart, count: orders.filter(o => o.status === 'pending').length, highlight: true },
+    { id: 'wallets', label: isRtl ? '💳 طرق الدفع وروابط التحويل' : '💳 Payment Methods & Links', icon: Smartphone, count: wallets.length },
+    { id: 'analytics', label: isRtl ? 'تحليلات المنصة والمؤشرات' : 'Analytics', icon: BarChart3 },
+    { id: 'achievements', label: isRtl ? '🏆 قسم إنجازاتنا وسابقة الأعمال' : '🏆 Achievements Portfolio', icon: CheckCircle2, count: achievementsList.length },
+    { id: 'cms-articles', label: isRtl ? 'إدارة المقالات والمدونة' : 'CMS Blog & Articles', icon: FileText, count: articles.length },
+    { id: 'cms-faqs', label: isRtl ? 'إدارة الأسئلة الشائعة' : 'CMS FAQ Manager', icon: HelpCircle, count: faqs.length },
+    { id: 'cms-announcements', label: isRtl ? 'الإعلانات والبانر الإخباري' : 'CMS Announcements', icon: Sparkles, count: announcements.length },
+    { id: 'published-portfolio', label: isRtl ? '🏆 معرض المشاريع المنشورة' : '🏆 Published Portfolio', icon: Globe, count: publishedProjects.length },
+    { id: 'projects', label: isRtl ? 'إدارة ونشر المشاريع' : 'Projects', icon: Layers, count: projects.length },
+    { id: 'seo', label: isRtl ? 'إعدادات محركات البحث (SEO)' : 'SEO Management', icon: Globe },
+    { id: 'backup', label: isRtl ? 'النسخ الاحتياطي واستعادة البيانات' : 'Data Backup & Restore', icon: UploadCloud },
+    { id: 'activity', label: isRtl ? 'سجل النشاطات والأحداث' : 'Activity Logs', icon: Clock, count: activityLogs.length },
+    { id: 'social', label: isRtl ? 'الهوية والبصريات والروابط' : 'Identity & Links', icon: Share2 },
+    { id: 'media', label: isRtl ? 'فيديوهات يوتيوب والدروس' : 'YouTube Videos & Tutorials', icon: Video, count: mediaResources.length },
+    { id: 'users', label: isRtl ? 'العملاء المسجلون' : 'Users', icon: ShieldCheck, count: users.length },
+    { id: 'tickets', label: isRtl ? 'تذاكر ومحادثات الدعم الفني' : 'AI & Live Support Tickets', icon: MessageSquare, count: supportTickets.filter(t => t.status === 'open' || t.unreadByAdmin).length },
+    { id: 'job-applications', label: isRtl ? 'طلبات الانضمام للفريق' : 'Job Applications', icon: Briefcase, count: applications.length },
+    { id: 'drafts', label: isRtl ? 'طلبات التعديل والملاحظات' : 'Client Modifications', icon: Sparkles, count: aiDrafts.filter(d => d.status === 'pending_review' || d.status === 'in_progress').length },
+    { id: 'reviews', label: isRtl ? 'تقييمات وآراء العملاء' : 'Reviews', icon: Star, count: reviews.length }
+  ];
+
+  const filteredSections = adminSections.filter(sec => isSectionAllowed(sec.id));
+
+  useEffect(() => {
+    if (!isSectionAllowed(activeSection) && filteredSections.length > 0) {
+      setActiveSection(filteredSections[0].id);
+    }
+  }, [activeSection, filteredSections]);
+
   const [newSecretFileName, setNewSecretFileName] = useState('');
   const [newSecretFileUrl, setNewSecretFileUrl] = useState('');
   const [uploadFileCategory, setUploadFileCategory] = useState('source_code_zip');
@@ -240,6 +317,10 @@ export default function AdminDashboard({
     setAchievementsList(storageService.getAllAchievements());
     setPublishedProjects(storageService.getPublishedProjects());
     setAdminNotifications(storageService.getAdminNotifications());
+    setOrders(storageService.getUserOrders());
+    setApplications(storageService.getApplications());
+    setQuickRepliesList(storageService.getQuickReplies());
+    setChatMessagesList(storageService.getChatMessages());
   };
 
   useEffect(() => {
@@ -1151,15 +1232,21 @@ export default function AdminDashboard({
           <div className="space-y-1">
             <div className="inline-flex items-center gap-2 rounded-full bg-emerald-500/20 px-3 py-1 text-xs font-bold text-emerald-400">
               <ShieldCheck className="w-4 h-4" />
-              <span>{isRtl ? 'لوحة تحكم المشرف ونظام إدارة المحتوى (CMS Control Panel)' : 'Master Admin & CMS Control Panel'}</span>
+              <span>
+                {isMasterAdmin 
+                  ? (isRtl ? 'لوحة تحكم المشرف الرئيسي (Master Admin)' : 'Master Admin & CMS Control Panel')
+                  : (isRtl ? `لوحة تحكم الموظف: ${currentStaff.name} (${currentStaff.roleAr})` : `Staff Dashboard: ${currentStaff.name}`)}
+              </span>
             </div>
             <h1 className="text-2xl md:text-3xl font-black text-white">
-              {isRtl ? 'إدارة منصة ليرن ويب ونظام المحتوى الشامل' : 'Lern Web Administration & Dynamic CMS'}
+              {isMasterAdmin 
+                ? (isRtl ? 'إدارة منصة ليرن ويب ونظام المحتوى الشامل' : 'Lern Web Administration & Dynamic CMS')
+                : (isRtl ? `أهلاً بك في فريق العمل، ${currentStaff.name.split(' ')[0]}` : `Welcome back, ${currentStaff.name.split(' ')[0]}`)}
             </h1>
             <p className="text-xs md:text-sm text-slate-300">
-              {isRtl 
-                ? 'تحكم كامل في نشر وحجب المشاريع، ألوان الهوية، فيديوهات يوتيوب، التقييمات، وتتبع طلبات التعديل.'
-                : 'Full authority over projects, identity colors, YouTube publishing, client reviews, and draft tracking.'}
+              {isMasterAdmin 
+                ? (isRtl ? 'تحكم كامل في نشر وحجب المشاريع، ألوان الهوية، فيديوهات يوتيوب، التقييمات، وتتبع طلبات التعديل.' : 'Full authority over projects, identity colors, YouTube publishing, client reviews, and draft tracking.')
+                : (isRtl ? 'لديك صلاحيات محدودة لإدارة المهام والعمليات الموكلة إليك من قبل المشرف العام.' : 'You have specific permissions to manage tasks assigned to you by the super administrator.')}
             </p>
           </div>
 
@@ -1461,29 +1548,7 @@ export default function AdminDashboard({
 
         {/* Main Section Navigation Tabs */}
         <div className="flex flex-wrap items-center gap-2 rounded-2xl border border-slate-800 bg-slate-900/90 p-1.5 shadow">
-          {[
-            { id: 'ai-keys', label: isRtl ? '🤖 المساعد والردود الذكية' : '🤖 Assistant & Smart Replies', icon: Bot, highlight: true },
-            { id: 'preferences', label: isRtl ? '🎨 تصميم ومظهر المنصة الشامل' : '🎨 Platform Design & Theme', icon: Settings },
-            { id: 'staff', label: isRtl ? '👥 إدارة المشرفين وخدمة العملاء' : '👥 Staff & Support Team', icon: Users, count: staffList.length },
-            { id: 'user-roles', label: isRtl ? '🛡️ أدوار وصلاحيات المستخدمين' : '🛡️ User Roles & Permissions', icon: ShieldCheck, count: Object.keys(userRolesMap).length },
-            { id: 'wallets', label: isRtl ? '💳 طرق الدفع وروابط التحويل' : '💳 Payment Methods & Links', icon: Smartphone, count: wallets.length },
-            { id: 'analytics', label: isRtl ? 'تحليلات المنصة والمؤشرات' : 'Analytics', icon: BarChart3 },
-            { id: 'achievements', label: isRtl ? '🏆 قسم إنجازاتنا وسابقة الأعمال' : '🏆 Achievements Portfolio', icon: CheckCircle2, count: achievementsList.length },
-            { id: 'cms-articles', label: isRtl ? 'إدارة المقالات والمدونة' : 'CMS Blog & Articles', icon: FileText, count: articles.length },
-            { id: 'cms-faqs', label: isRtl ? 'إدارة الأسئلة الشائعة' : 'CMS FAQ Manager', icon: HelpCircle, count: faqs.length },
-            { id: 'cms-announcements', label: isRtl ? 'الإعلانات والبانر الإخباري' : 'CMS Announcements', icon: Sparkles, count: announcements.length },
-            { id: 'published-portfolio', label: isRtl ? '🏆 معرض المشاريع المنشورة' : '🏆 Published Portfolio', icon: Globe, count: publishedProjects.length },
-            { id: 'projects', label: isRtl ? 'إدارة ونشر المشاريع' : 'Projects', icon: Layers, count: projects.length },
-            { id: 'seo', label: isRtl ? 'إعدادات محركات البحث (SEO)' : 'SEO Management', icon: Globe },
-            { id: 'backup', label: isRtl ? 'النسخ الاحتياطي واستعادة البيانات' : 'Data Backup & Restore', icon: UploadCloud },
-            { id: 'activity', label: isRtl ? 'سجل النشاطات والأحداث' : 'Activity Logs', icon: Clock, count: activityLogs.length },
-            { id: 'social', label: isRtl ? 'الهوية والبصريات والروابط' : 'Identity & Links', icon: Share2 },
-            { id: 'media', label: isRtl ? 'فيديوهات يوتيوب والدروس' : 'YouTube Videos & Tutorials', icon: Video, count: mediaResources.length },
-            { id: 'users', label: isRtl ? 'العملاء المسجلون' : 'Users', icon: ShieldCheck, count: users.length },
-            { id: 'tickets', label: isRtl ? 'تذاكر ومحادثات الدعم الفني' : 'AI & Live Support Tickets', icon: MessageSquare, count: supportTickets.filter(t => t.status === 'open' || t.unreadByAdmin).length },
-            { id: 'drafts', label: isRtl ? 'طلبات التعديل والملاحظات' : 'Client Modifications', icon: Sparkles, count: aiDrafts.filter(d => d.status === 'pending_review' || d.status === 'in_progress').length },
-            { id: 'reviews', label: isRtl ? 'تقييمات وآراء العملاء' : 'Reviews', icon: Star, count: reviews.length }
-          ].map((sec) => {
+          {filteredSections.map((sec) => {
             const Icon = sec.icon;
             const isCur = activeSection === sec.id;
             return (
@@ -1815,187 +1880,855 @@ export default function AdminDashboard({
                 ))}
               </div>
             </div>
+
+            {/* Quick Replies & Floating Bot Chat Management */}
+            <div className="rounded-3xl border border-slate-800 bg-slate-900/90 p-6 md:p-8 shadow-xl space-y-6">
+              <div className="flex items-center justify-between border-b border-slate-800 pb-4">
+                <div className="flex items-center gap-3">
+                  <div className="p-2.5 rounded-2xl bg-cyan-500/20 text-cyan-400">
+                    <MessageSquare className="w-6 h-6" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-bold text-white">
+                      {isRtl ? 'إدارة الردود السريعة لبوت المحادثة العائم (Quick Replies)' : 'Floating Bot Quick Replies'}
+                    </h3>
+                    <p className="text-xs text-slate-400">
+                      {isRtl ? 'أضف وعدل الردود السريعة التي تظهر للعملاء في بوت المحادثة العائم للاستجابة الفورية' : 'Manage quick reply buttons shown in the client floating chat widget.'}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Add Quick Reply Form */}
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  if (!newQrTitleAr.trim() || !newQrMsgAr.trim()) {
+                    alert(isRtl ? 'يرجى إدخال عنوان الرد ومحتواه بالعربي' : 'Please provide quick reply title and message');
+                    return;
+                  }
+                  const newQr = {
+                    id: 'qr_' + Date.now(),
+                    titleAr: newQrTitleAr.trim(),
+                    titleEn: newQrTitleEn.trim() || newQrTitleAr.trim(),
+                    messageAr: newQrMsgAr.trim(),
+                    messageEn: newQrMsgEn.trim() || newQrMsgAr.trim()
+                  };
+                  storageService.saveQuickReply(newQr);
+                  setQuickRepliesList(storageService.getQuickReplies());
+                  setNewQrTitleAr('');
+                  setNewQrTitleEn('');
+                  setNewQrMsgAr('');
+                  setNewQrMsgEn('');
+                  triggerSaveNotification(isRtl ? 'تم إضافة الرد السريع بنجاح!' : 'Quick reply added successfully!');
+                }}
+                className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-slate-950 p-4 rounded-2xl border border-slate-800"
+              >
+                <div className="space-y-1.5">
+                  <label className="text-xs font-bold text-slate-300">{isRtl ? 'عنوان الرد (عربي):' : 'Title (AR):'}</label>
+                  <input
+                    type="text"
+                    value={newQrTitleAr}
+                    onChange={(e) => setNewQrTitleAr(e.target.value)}
+                    placeholder="مثال: كيف أشتري منظومة؟"
+                    className="w-full rounded-xl border border-slate-800 bg-slate-900 px-3.5 py-2.5 text-xs text-white"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-xs font-bold text-slate-300">{isRtl ? 'عنوان الرد (إنجليزي):' : 'Title (EN):'}</label>
+                  <input
+                    type="text"
+                    value={newQrTitleEn}
+                    onChange={(e) => setNewQrTitleEn(e.target.value)}
+                    placeholder="e.g. How to buy system?"
+                    className="w-full rounded-xl border border-slate-800 bg-slate-900 px-3.5 py-2.5 text-xs text-white"
+                  />
+                </div>
+                <div className="space-y-1.5 md:col-span-2">
+                  <label className="text-xs font-bold text-slate-300">{isRtl ? 'نص الرسالة التلقائية للرد السريع (عربي):' : 'Message Text (AR):'}</label>
+                  <textarea
+                    value={newQrMsgAr}
+                    onChange={(e) => setNewQrMsgAr(e.target.value)}
+                    placeholder="محتوى الرد الذي سيرسله البوت أو يختاره العميل..."
+                    className="w-full h-20 rounded-xl border border-slate-800 bg-slate-900 px-3.5 py-2.5 text-xs text-white"
+                  />
+                </div>
+                <div className="md:col-span-2 flex justify-end">
+                  <button
+                    type="submit"
+                    className="px-6 py-2.5 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-bold transition flex items-center gap-1.5 cursor-pointer"
+                  >
+                    <Plus className="w-4 h-4" />
+                    <span>{isRtl ? 'إضافة رد سريع جديد' : 'Add Quick Reply'}</span>
+                  </button>
+                </div>
+              </form>
+
+              {/* Quick Replies List */}
+              <div className="space-y-3">
+                <h4 className="text-xs font-bold text-slate-300">{isRtl ? 'الردود السريعة الحالية (' + quickRepliesList.length + '):' : 'Current Quick Replies:'}</h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  {quickRepliesList.map((qr) => (
+                    <div key={qr.id} className="p-4 rounded-2xl bg-slate-950 border border-slate-800 flex items-start justify-between gap-3">
+                      <div className="space-y-1">
+                        <span className="text-xs font-bold text-cyan-400 bg-cyan-500/10 px-2.5 py-0.5 rounded-full border border-cyan-500/20">{qr.titleAr}</span>
+                        <p className="text-xs text-slate-300 mt-1 leading-relaxed">{qr.messageAr}</p>
+                      </div>
+                      <button
+                        onClick={() => {
+                          storageService.deleteQuickReply(qr.id);
+                          setQuickRepliesList(storageService.getQuickReplies());
+                          triggerSaveNotification(isRtl ? 'تم حذف الرد السريع.' : 'Quick reply deleted.');
+                        }}
+                        className="p-2 text-slate-500 hover:text-red-400 hover:bg-red-500/10 rounded-xl transition cursor-pointer"
+                        title="حذف الرد السريع"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Live Client Chat Messages Inbox */}
+              <div className="border-t border-slate-800 pt-6 space-y-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h4 className="text-sm font-bold text-white flex items-center gap-2">
+                      <MessageSquare className="w-4 h-4 text-blue-400" />
+                      {isRtl ? 'صندوق وارد رسائل العملاء (Live Chat Inbox)' : 'Client Chat Inbox'}
+                    </h4>
+                    <p className="text-xs text-slate-400">
+                      {isRtl ? 'متابعة رسائل العملاء القادمة من البوت العائم وإرسال ردود مباشرة' : 'Review incoming messages from clients and reply directly.'}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="space-y-3 max-h-[350px] overflow-y-auto p-1">
+                  {chatMessagesList.length === 0 ? (
+                    <p className="text-xs text-slate-500 text-center py-6">{isRtl ? 'لا توجد رسائل سابقة في الصندوق.' : 'No chat messages yet.'}</p>
+                  ) : (
+                    chatMessagesList.map((msg) => {
+                      const isAdmin = msg.sender === 'admin';
+                      return (
+                        <div key={msg.id} className={`p-4 rounded-2xl border ${isAdmin ? 'bg-blue-950/20 border-blue-900/40 mr-6' : 'bg-slate-950 border-slate-800 ml-6'} space-y-2`}>
+                          <div className="flex items-center justify-between text-xs">
+                            <span className="font-bold text-white flex items-center gap-1.5">
+                              {isAdmin ? <Bot className="w-3.5 h-3.5 text-blue-400" /> : <User className="w-3.5 h-3.5 text-indigo-400" />}
+                              {isAdmin ? 'رد الإدارة' : msg.userName}
+                              {msg.userEmail && <span className="text-[10px] text-slate-500 font-normal">({msg.userEmail})</span>}
+                            </span>
+                            <span className="text-[10px] text-slate-500 font-mono">
+                              {new Date(msg.createdAt).toLocaleString()}
+                            </span>
+                          </div>
+                          <p className="text-xs text-slate-200 leading-relaxed whitespace-pre-wrap">{msg.message}</p>
+                          <div className="flex justify-end gap-2 pt-1">
+                            {!isAdmin && (
+                              <button
+                                onClick={() => {
+                                  const replyText = prompt(isRtl ? `اكتب رد الإدارة إلى العميل ${msg.userName}:` : `Type admin reply to ${msg.userName}:`);
+                                  if (replyText && replyText.trim()) {
+                                    storageService.saveChatMessage({
+                                      userId: msg.userId,
+                                      userName: 'إدارة ليرن ويب',
+                                      userEmail: 'admin@lernweb.com',
+                                      message: replyText.trim(),
+                                      sender: 'admin'
+                                    });
+                                    setChatMessagesList(storageService.getChatMessages());
+                                    triggerSaveNotification(isRtl ? 'تم إرسال الرد للعميل بنجاح!' : 'Reply sent to client!');
+                                  }
+                                }}
+                                className="px-3 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-[11px] font-bold transition flex items-center gap-1 cursor-pointer"
+                              >
+                                <Send className="w-3 h-3 rotate-180" />
+                                <span>{isRtl ? 'رد على العميل' : 'Reply'}</span>
+                              </button>
+                            )}
+                            <button
+                              onClick={() => {
+                                storageService.deleteChatMessage(msg.id);
+                                setChatMessagesList(storageService.getChatMessages());
+                                triggerSaveNotification(isRtl ? 'تم حذف الرسالة.' : 'Message deleted.');
+                              }}
+                              className="p-1.5 text-slate-500 hover:text-red-400 hover:bg-red-500/10 rounded-xl transition cursor-pointer"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+                        </div>
+                      );
+                    })
+                  )}
+                </div>
+              </div>
+            </div>
           </div>
         )}
 
         {/* SECTION: STAFF & CUSTOMER SERVICE MANAGEMENT */}
         {activeSection === 'staff' && (
+          <StaffManager 
+            staffList={staffList} 
+            lang={lang} 
+            onRefresh={refreshLocalData} 
+            triggerSaveNotification={triggerSaveNotification} 
+          />
+        )}
+
+        {/* SECTION: ORDERS & MANUAL PAYMENTS VERIFICATION */}
+        {activeSection === 'orders' && (
           <div className="space-y-8 animate-fadeIn">
+            {/* Header Banner */}
             <div className="rounded-3xl border border-blue-500/30 bg-gradient-to-r from-blue-950 via-slate-900 to-indigo-950 p-6 md:p-8 shadow-2xl space-y-3">
               <div className="inline-flex items-center gap-2 rounded-full border border-blue-500/30 bg-blue-500/10 px-4 py-1.5 text-xs font-semibold text-blue-400">
-                <Users className="w-4 h-4 text-blue-400" />
-                <span>{isRtl ? 'إدارة المشرفين، المنسقين وخدمة العملاء' : 'Staff & Customer Service Management'}</span>
+                <ShoppingCart className="w-4 h-4 text-amber-400" />
+                <span>{isRtl ? 'إدارة ومراجعة طلبات الشراء والدفع اليدوي (Manual Payment Gateway Orders)' : 'Manual Orders & Payment Verification'}</span>
               </div>
               <h2 className="text-2xl md:text-3xl font-extrabold text-white">
-                {isRtl ? 'فريق العمل والمشرفين بصلاحيات محددة' : 'Team & Supervisor Permissions'}
+                {isRtl ? 'مراجعة السداد اليدوي واعتماد المنصات وتفعيل التراخيص' : 'Manual Payment Verification & Platform Activation'}
               </h2>
-              <p className="text-xs md:text-sm text-slate-300 max-w-2xl">
+              <p className="text-xs md:text-sm text-slate-300 max-w-3xl">
                 {isRtl 
-                  ? 'أضف مشرفين وموظفي خدمة العملاء مع تحديد أرقام هواتفهم، روابط الواتساب والتلجرام، والصلاحيات الإدارية.' 
-                  : 'Manage administrative staff, customer service reps, WhatsApp/Telegram links, and granular roles.'}
+                  ? 'مراجعة وتدقيق إيصالات السداد المرفوعة من العملاء، التحقق من أرقام التحويل، واعتماد وتفعيل المنصات فورياً مع توليد مفاتيح الترخيص وشهادات الملكية.' 
+                  : 'Review submitted payment receipts, match sender wallets and transaction reference codes, and approve platforms to activate live Vercel deployments.'}
               </p>
             </div>
 
-            {/* Add Staff Form */}
-            <form onSubmit={(e) => {
-              e.preventDefault();
-              if (!newStaffName.trim() || !newStaffPhone.trim()) {
-                alert(isRtl ? 'يرجى إدخال اسم الموظف ورقم الهاتف' : 'Please provide staff name and phone');
-                return;
-              }
-              const member = {
-                id: 'staff-' + Date.now(),
-                name: newStaffName.trim(),
-                roleAr: newStaffRole,
-                roleEn: newStaffRole,
-                phone: newStaffPhone.trim(),
-                whatsapp: newStaffWhatsapp.trim() || `https://wa.me/${newStaffPhone.replace(/[^\d]/g, '')}`,
-                telegram: newStaffTelegram.trim(),
-                permissions: ['support', 'orders', 'cms'],
-                isActive: true,
-                createdAt: new Date().toISOString()
-              };
-              storageService.saveStaffMember(member);
-              setStaffList(storageService.getStaff());
-              setNewStaffName('');
-              setNewStaffPhone('');
-              setNewStaffWhatsapp('');
-              setNewStaffTelegram('');
-              triggerSaveNotification(isRtl ? 'تم إضافة عضو فريق العمل بنجاح!' : 'Staff member added successfully!');
-            }} className="rounded-3xl border border-slate-800 bg-slate-900/90 p-6 md:p-8 shadow-xl space-y-6">
-              <h3 className="text-lg md:text-xl font-bold text-white flex items-center gap-2">
-                <Plus className="w-5 h-5 text-blue-400" />
-                <span>{isRtl ? 'إضافة مشرف أو موظف خدمة عملاء جديد' : 'Add New Staff Member'}</span>
-              </h3>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-slate-300">{isRtl ? 'اسم الموظف / المشرف' : 'Staff Full Name'}</label>
-                  <input
-                    type="text"
-                    required
-                    value={newStaffName}
-                    onChange={(e) => setNewStaffName(e.target.value)}
-                    placeholder={isRtl ? 'مثال: أ. محمود السعيد' : 'e.g. Mahmoud Al-Saeed'}
-                    className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3.5 py-2.5 text-xs text-white"
-                  />
-                </div>
-
-                <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-slate-300">{isRtl ? 'المنصب / الوظيفة' : 'Role / Title'}</label>
-                  <select
-                    value={newStaffRole}
-                    onChange={(e) => setNewStaffRole(e.target.value)}
-                    className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3.5 py-2.5 text-xs text-white"
-                  >
-                    <option value={isRtl ? 'مشرف عام (Super Admin)' : 'Super Admin'}>{isRtl ? 'مشرف عام (Super Admin)' : 'Super Admin'}</option>
-                    <option value={isRtl ? 'مسؤول خدمة العملاء (Customer Service)' : 'Customer Service'}>{isRtl ? 'مسؤول خدمة العملاء (Customer Service)' : 'Customer Service'}</option>
-                    <option value={isRtl ? 'دعم فني وتقني (Technical Support)' : 'Technical Support'}>{isRtl ? 'دعم فني وتقني (Technical Support)' : 'Technical Support'}</option>
-                    <option value={isRtl ? 'مدير مبيعات (Sales Manager)' : 'Sales Manager'}>{isRtl ? 'مدير مبيعات (Sales Manager)' : 'Sales Manager'}</option>
-                  </select>
-                </div>
-
-                <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-slate-300">{isRtl ? 'رقم الهاتف / الموبايل' : 'Phone Number'}</label>
-                  <input
-                    type="text"
-                    required
-                    value={newStaffPhone}
-                    onChange={(e) => setNewStaffPhone(e.target.value)}
-                    placeholder="01012345678"
-                    className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3.5 py-2.5 text-xs font-mono text-white"
-                  />
-                </div>
-
-                <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-slate-300">{isRtl ? 'رابط الواتساب (WhatsApp URL)' : 'WhatsApp Link'}</label>
-                  <input
-                    type="text"
-                    value={newStaffWhatsapp}
-                    onChange={(e) => setNewStaffWhatsapp(e.target.value)}
-                    placeholder="https://wa.me/2010..."
-                    className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3.5 py-2.5 text-xs font-mono text-emerald-400"
-                  />
-                </div>
-
-                <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-slate-300">{isRtl ? 'رابط التلجرام (Telegram Link)' : 'Telegram Link'}</label>
-                  <input
-                    type="text"
-                    value={newStaffTelegram}
-                    onChange={(e) => setNewStaffTelegram(e.target.value)}
-                    placeholder="https://t.me/username"
-                    className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3.5 py-2.5 text-xs font-mono text-blue-400"
-                  />
-                </div>
-
-                <div className="flex items-end">
-                  <button
-                    type="submit"
-                    className="w-full rounded-xl bg-blue-600 hover:bg-blue-500 py-2.5 text-xs font-bold text-white shadow-lg transition cursor-pointer"
-                  >
-                    {isRtl ? 'حفظ وإضافة الموظف' : 'Save & Add Staff'}
-                  </button>
-                </div>
+            {/* Metrics Row */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+              <div className="rounded-2xl border border-slate-800 bg-slate-900/90 p-4 space-y-1">
+                <span className="text-xs text-slate-400">{isRtl ? 'إجمالي الطلبات' : 'Total Orders'}</span>
+                <p className="text-2xl font-black text-white">{orders.length}</p>
+                <span className="text-[10px] text-blue-400">{isRtl ? 'كافة المعاملات' : 'All transactions'}</span>
               </div>
-            </form>
 
-            {/* Staff Members Cards Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {staffList.map((member) => (
-                <div key={member.id} className="rounded-3xl border border-slate-800 bg-slate-900/90 p-6 space-y-4 shadow-xl flex flex-col justify-between">
-                  <div className="space-y-3">
-                    <div className="flex items-start justify-between">
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-2xl bg-blue-500/20 border border-blue-500/30 flex items-center justify-center text-blue-400 font-bold">
-                          {member.name.charAt(0)}
-                        </div>
-                        <div>
-                          <h4 className="font-bold text-white text-base">{member.name}</h4>
-                          <span className="inline-block px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
-                            {member.roleAr}
-                          </span>
-                        </div>
-                      </div>
+              <div className="rounded-2xl border border-amber-500/30 bg-amber-950/20 p-4 space-y-1">
+                <span className="text-xs text-amber-300">{isRtl ? 'طلبات قيد المراجعة' : 'Pending Verification'}</span>
+                <p className="text-2xl font-black text-amber-400 flex items-center gap-2">
+                  <span>{orders.filter(o => o.status === 'pending').length}</span>
+                  {orders.filter(o => o.status === 'pending').length > 0 && (
+                    <span className="w-2.5 h-2.5 rounded-full bg-amber-400 animate-ping"></span>
+                  )}
+                </p>
+                <span className="text-[10px] text-amber-400/80">{isRtl ? 'بحاجة للتدقيق والاعتماد' : 'Needs admin review'}</span>
+              </div>
 
-                      <button
-                        type="button"
-                        onClick={() => {
-                          if (window.confirm(isRtl ? 'هل تريد حذف هذا العضو؟' : 'Delete staff member?')) {
-                            storageService.deleteStaffMember(member.id);
-                            setStaffList(storageService.getStaff());
-                            triggerSaveNotification(isRtl ? 'تم حذف العضو.' : 'Staff deleted.');
-                          }
-                        }}
-                        className="text-slate-500 hover:text-rose-400 p-1.5 rounded-xl transition cursor-pointer"
+              <div className="rounded-2xl border border-emerald-500/30 bg-emerald-950/20 p-4 space-y-1">
+                <span className="text-xs text-emerald-300">{isRtl ? 'منصات معتمدة ومفعلة' : 'Confirmed & Active'}</span>
+                <p className="text-2xl font-black text-emerald-400">{orders.filter(o => o.status === 'confirmed' || o.status === 'active').length}</p>
+                <span className="text-[10px] text-emerald-400/80">{isRtl ? 'تم تفعيل التراخيص' : 'Activated & deployed'}</span>
+              </div>
+
+              <div className="rounded-2xl border border-rose-500/30 bg-rose-950/20 p-4 space-y-1">
+                <span className="text-xs text-rose-300">{isRtl ? 'مرفوضة / بحاجة لتعديل' : 'Rejected / On Hold'}</span>
+                <p className="text-2xl font-black text-rose-400">{orders.filter(o => o.status === 'rejected').length}</p>
+                <span className="text-[10px] text-rose-400/80">{isRtl ? 'إيصالات غير مطابقة' : 'Discrepancies found'}</span>
+              </div>
+            </div>
+
+            {/* Filter & Search Bar */}
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 rounded-2xl border border-slate-800 bg-slate-900/90 p-3">
+              <div className="flex flex-wrap items-center gap-2">
+                {[
+                  { id: 'all', label: isRtl ? 'الكل' : 'All', count: orders.length },
+                  { id: 'pending', label: isRtl ? 'قيد المراجعة' : 'Pending', count: orders.filter(o => o.status === 'pending').length, color: 'text-amber-400' },
+                  { id: 'confirmed', label: isRtl ? 'معتمدة ومفعلة' : 'Confirmed', count: orders.filter(o => o.status === 'confirmed' || o.status === 'active').length, color: 'text-emerald-400' },
+                  { id: 'rejected', label: isRtl ? 'مرفوضة' : 'Rejected', count: orders.filter(o => o.status === 'rejected').length, color: 'text-rose-400' }
+                ].map((f) => (
+                  <button
+                    key={f.id}
+                    type="button"
+                    onClick={() => setOrderFilter(f.id)}
+                    className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 ${
+                      orderFilter === f.id
+                        ? 'bg-blue-600 text-white shadow'
+                        : 'bg-slate-800/80 text-slate-300 hover:bg-slate-800'
+                    }`}
+                  >
+                    <span>{f.label}</span>
+                    <span className={`px-1.5 py-0.2 rounded-full text-[10px] bg-black/30 ${f.color || 'text-white'}`}>
+                      {f.count}
+                    </span>
+                  </button>
+                ))}
+              </div>
+
+              <div className="relative min-w-[240px]">
+                <Search className="w-4 h-4 text-slate-500 absolute top-3 right-3 pointer-events-none" />
+                <input
+                  type="text"
+                  value={orderSearchQuery}
+                  onChange={(e) => setOrderSearchQuery(e.target.value)}
+                  placeholder={isRtl ? 'بحث باسم العميل، الهاتف، كود العملية، الرابط...' : 'Search by client, phone, ref, url...'}
+                  className="w-full rounded-xl border border-slate-700 bg-slate-950 pr-9 pl-4 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-blue-500"
+                />
+              </div>
+            </div>
+
+            {/* Orders List / Cards Grid */}
+            {(() => {
+              const filteredOrders = orders.filter((o) => {
+                const matchesFilter = orderFilter === 'all' 
+                  ? true 
+                  : orderFilter === 'pending' 
+                  ? o.status === 'pending' 
+                  : orderFilter === 'confirmed'
+                  ? (o.status === 'confirmed' || o.status === 'active')
+                  : o.status === 'rejected';
+
+                if (!matchesFilter) return false;
+
+                if (!orderSearchQuery.trim()) return true;
+                const q = orderSearchQuery.toLowerCase().trim();
+                const name = (o.clientName || o.userName || '').toLowerCase();
+                const phone = (o.clientPhone || o.userPhone || o.senderPhone || '').toLowerCase();
+                const arTitle = (o.platformNameAr || o.projectTitle || '').toLowerCase();
+                const enTitle = (o.platformNameEn || '').toLowerCase();
+                const ref = (o.referenceId || '').toLowerCase();
+                const vercel = (o.generatedVercelUrl || '').toLowerCase();
+
+                return name.includes(q) || phone.includes(q) || arTitle.includes(q) || enTitle.includes(q) || ref.includes(q) || vercel.includes(q);
+              });
+
+              if (filteredOrders.length === 0) {
+                return (
+                  <div className="text-center py-16 rounded-3xl border border-dashed border-slate-800 bg-slate-900/40 space-y-3">
+                    <ShoppingCart className="w-12 h-12 text-slate-600 mx-auto" />
+                    <h4 className="text-base font-bold text-slate-300">
+                      {isRtl ? 'لا توجد طلبات شراء مطابقة للفلاتر الحالية' : 'No orders matching current filter.'}
+                    </h4>
+                    <p className="text-xs text-slate-500 max-w-md mx-auto">
+                      {isRtl 
+                        ? 'عندما يقوم أي عميل بطلب شراء منصة ورفع إيصال السداد، ستظهر تفاصيل التحويل هنا للتدقيق والاعتماد الفوري.' 
+                        : 'Orders submitted via the manual payment gateway will appear here for verification and approval.'}
+                    </p>
+                  </div>
+                );
+              }
+
+              return (
+                <div className="space-y-4">
+                  {filteredOrders.map((order, idx) => {
+                    const isPending = order.status === 'pending';
+                    const isConfirmed = order.status === 'confirmed' || order.status === 'active';
+                    const isRejected = order.status === 'rejected';
+
+                    const tierLabel = order.planType === 'monthly'
+                      ? (isRtl ? 'اشتراك شهري' : 'Monthly Tier')
+                      : order.planType === 'annual'
+                      ? (isRtl ? 'اشتراك سنوي' : 'Annual Tier')
+                      : (isRtl ? 'تمليك دائم مدى الحياة' : 'Lifetime Ownership');
+
+                    const vercelUrl = order.generatedVercelUrl || (order.platformNameEn ? `https://${order.platformNameEn.toLowerCase().replace(/[^a-z0-9-]/g, '')}.vercel.app` : 'https://vercel.app');
+
+                    return (
+                      <div 
+                        key={order.id || idx}
+                        className={`rounded-2xl border p-5 md:p-6 space-y-5 transition-all ${
+                          isPending 
+                            ? 'border-amber-500/40 bg-slate-900/90 shadow-lg shadow-amber-950/10'
+                            : isConfirmed
+                            ? 'border-emerald-500/30 bg-slate-900/70'
+                            : 'border-rose-500/30 bg-rose-950/10'
+                        }`}
                       >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                    </div>
+                        {/* Top Row: Order ID, Submission Date, Badges */}
+                        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-slate-800 pb-4">
+                          <div className="flex flex-wrap items-center gap-2">
+                            <span className="font-mono text-xs font-bold text-slate-400 bg-slate-800 px-2.5 py-1 rounded-lg">
+                              #{order.id}
+                            </span>
+                            <span className="px-2.5 py-1 rounded-lg text-xs font-bold bg-blue-500/20 text-blue-300 border border-blue-500/30">
+                              {tierLabel}
+                            </span>
+                            <span className="px-2.5 py-1 rounded-lg text-xs font-black bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                              {order.amount || 'حسب الخطة'}
+                            </span>
+                          </div>
 
-                    <div className="space-y-2 text-xs text-slate-300 font-mono">
-                      <div className="flex items-center justify-between p-2 rounded-xl bg-slate-950 border border-slate-800">
-                        <span className="text-slate-500">{isRtl ? 'الهاتف:' : 'Phone:'}</span>
-                        <span className="text-white font-bold">{member.phone}</span>
+                          <div className="flex items-center gap-3">
+                            <span className="text-xs text-slate-400 font-mono flex items-center gap-1">
+                              <Clock className="w-3.5 h-3.5" />
+                              <span>{order.createdAt ? new Date(order.createdAt).toLocaleString(isRtl ? 'ar-EG' : 'en-US') : ''}</span>
+                            </span>
+
+                            {isPending && (
+                              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-amber-500/20 text-amber-400 border border-amber-500/40">
+                                <span className="w-2 h-2 rounded-full bg-amber-400 animate-ping"></span>
+                                <span>{isRtl ? 'قيد المراجعة والتحقق' : 'Pending Verification'}</span>
+                              </span>
+                            )}
+                            {isConfirmed && (
+                              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/40">
+                                <Check className="w-3.5 h-3.5" />
+                                <span>{isRtl ? 'معتمد ومفعل رسمياً' : 'Confirmed & Active'}</span>
+                              </span>
+                            )}
+                            {isRejected && (
+                              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-rose-500/20 text-rose-400 border border-rose-500/40">
+                                <AlertCircle className="w-3.5 h-3.5" />
+                                <span>{isRtl ? 'مرفوض / يحتاج تعديل' : 'Rejected'}</span>
+                              </span>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Content Grid: 3 Columns (Client, Platform, Payment Receipt) */}
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+                          {/* Col 1: Client Information */}
+                          <div className="rounded-xl bg-slate-950/70 border border-slate-800 p-4 space-y-3">
+                            <h5 className="text-xs font-bold text-slate-300 flex items-center gap-1.5 border-b border-slate-800 pb-2">
+                              <User className="w-3.5 h-3.5 text-blue-400" />
+                              <span>{isRtl ? 'بيانات العميل صاحب الطلب:' : 'Client Information:'}</span>
+                            </h5>
+                            <div className="space-y-2 text-xs">
+                              <div className="flex justify-between">
+                                <span className="text-slate-400">{isRtl ? 'الاسم:' : 'Name:'}</span>
+                                <span className="font-bold text-white">{order.clientName || order.userName || 'العميل'}</span>
+                              </div>
+                              <div className="flex justify-between">
+                                <span className="text-slate-400">{isRtl ? 'رقم الهاتف:' : 'Phone:'}</span>
+                                <span className="font-mono text-slate-200 select-all">{order.clientPhone || order.userPhone || '-'}</span>
+                              </div>
+                              {order.userEmail && (
+                                <div className="flex justify-between">
+                                  <span className="text-slate-400">{isRtl ? 'البريد:' : 'Email:'}</span>
+                                  <span className="font-mono text-slate-300 text-[11px] truncate select-all">{order.userEmail}</span>
+                                </div>
+                              )}
+                              <div className="flex justify-between">
+                                <span className="text-slate-400">{isRtl ? 'معرف الحساب:' : 'User ID:'}</span>
+                                <span className="font-mono text-[10px] text-slate-500">{order.userId}</span>
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Col 2: Platform Customization & Vercel URL */}
+                          <div className="rounded-xl bg-slate-950/70 border border-slate-800 p-4 space-y-3">
+                            <h5 className="text-xs font-bold text-slate-300 flex items-center gap-1.5 border-b border-slate-800 pb-2">
+                              <Globe className="w-3.5 h-3.5 text-cyan-400" />
+                              <span>{isRtl ? 'تخصيص المنصة ورابط Vercel:' : 'Platform Customization & URL:'}</span>
+                            </h5>
+                            <div className="space-y-2 text-xs">
+                              <div className="flex justify-between">
+                                <span className="text-slate-400">{isRtl ? 'الاسم بالعربي:' : 'Arabic Name:'}</span>
+                                <span className="font-bold text-white">{order.platformNameAr || order.projectTitle}</span>
+                              </div>
+                              <div className="flex justify-between">
+                                <span className="text-slate-400">{isRtl ? 'الاسم بالإنجليزي:' : 'English Name:'}</span>
+                                <span className="font-mono text-cyan-300">{order.platformNameEn || '-'}</span>
+                              </div>
+                              <div className="pt-1">
+                                <span className="text-[10px] text-slate-400 block mb-1">{isRtl ? 'رابط Vercel المولد ديناميكياً:' : 'Generated Vercel Link:'}</span>
+                                <div className="flex items-center justify-between gap-1 bg-slate-900 p-1.5 rounded-lg border border-slate-800">
+                                  <span className="font-mono text-[11px] text-cyan-300 truncate dir-ltr select-all" dir="ltr">{vercelUrl}</span>
+                                  <div className="flex items-center gap-1">
+                                    <button
+                                      type="button"
+                                      onClick={() => {
+                                        navigator.clipboard.writeText(vercelUrl);
+                                        triggerSaveNotification(isRtl ? 'تم نسخ الرابط!' : 'URL copied!');
+                                      }}
+                                      className="p-1 hover:bg-slate-800 rounded text-slate-400 hover:text-white"
+                                      title={isRtl ? 'نسخ' : 'Copy'}
+                                    >
+                                      <Copy className="w-3 h-3" />
+                                    </button>
+                                    <a
+                                      href={vercelUrl}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      className="p-1 hover:bg-slate-800 rounded text-cyan-400"
+                                      title={isRtl ? 'زيارة' : 'Visit'}
+                                    >
+                                      <ExternalLink className="w-3 h-3" />
+                                    </a>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Col 3: Payment Verification & Receipt */}
+                          <div className="rounded-xl bg-slate-950/70 border border-slate-800 p-4 space-y-3">
+                            <h5 className="text-xs font-bold text-slate-300 flex items-center gap-1.5 border-b border-slate-800 pb-2">
+                              <Smartphone className="w-3.5 h-3.5 text-amber-400" />
+                              <span>{isRtl ? 'بيانات التحويل والإيصال:' : 'Payment Transfer & Receipt:'}</span>
+                            </h5>
+                            <div className="space-y-2 text-xs">
+                              <div className="flex justify-between">
+                                <span className="text-slate-400">{isRtl ? 'المحفظة المستلمة:' : 'Admin Wallet:'}</span>
+                                <span className="font-bold text-white">{order.walletName || order.paymentMethod}</span>
+                              </div>
+                              <div className="flex justify-between">
+                                <span className="text-slate-400">{isRtl ? 'رقم محفظة الإدارة:' : 'Target Number:'}</span>
+                                <span className="font-mono text-slate-300">{order.walletNumber || '-'}</span>
+                              </div>
+                              <div className="flex justify-between">
+                                <span className="text-slate-400">{isRtl ? 'رقم محول العميل:' : 'Sender Phone:'}</span>
+                                <span className="font-mono font-bold text-amber-300 select-all">{order.senderPhone || '-'}</span>
+                              </div>
+                              <div className="flex justify-between items-center">
+                                <span className="text-slate-400">{isRtl ? 'كود العملية:' : 'Ref Code:'}</span>
+                                <span className="font-mono font-bold text-white bg-slate-800 px-2 py-0.5 rounded select-all">
+                                  {order.referenceId || '-'}
+                                </span>
+                              </div>
+
+                              {/* Uploaded Receipt Preview */}
+                              <div className="pt-2 border-t border-slate-800/80">
+                                <span className="text-[10px] text-slate-400 block mb-1.5">{isRtl ? 'صورة إيصال التحويل (Proof of Payment):' : 'Payment Receipt Image:'}</span>
+                                {order.receiptImage ? (
+                                  <div 
+                                    onClick={() => setSelectedReceiptImage(order.receiptImage)}
+                                    className="group relative cursor-pointer rounded-lg overflow-hidden border border-slate-700 bg-slate-900 h-20 flex items-center justify-center hover:border-blue-500 transition"
+                                  >
+                                    <img 
+                                      src={order.receiptImage} 
+                                      alt="Payment Receipt" 
+                                      className="w-full h-full object-cover group-hover:scale-105 transition duration-300" 
+                                    />
+                                    <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition flex items-center justify-center text-[10px] font-bold text-white gap-1">
+                                      <Eye className="w-3.5 h-3.5" />
+                                      <span>{isRtl ? 'انقر لتكبير الإيصال ومطابقته' : 'Click to Enlarge'}</span>
+                                    </div>
+                                  </div>
+                                ) : (
+                                  <div className="h-12 rounded-lg border border-dashed border-slate-800 bg-slate-900/50 flex items-center justify-center text-[10px] text-slate-500">
+                                    {isRtl ? 'لم يرفق العميل صورة إيصال' : 'No receipt image uploaded'}
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Admin Action Bar */}
+                        <div className="pt-3 border-t border-slate-800 flex flex-wrap items-center justify-between gap-3">
+                          <div className="flex items-center gap-2">
+                            {/* WhatsApp Button */}
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const phone = order.clientPhone || order.senderPhone || '';
+                                const cleanPhone = phone.replace(/[^0-9]/g, '');
+                                const targetPhone = cleanPhone.startsWith('2') ? cleanPhone : '2' + cleanPhone;
+                                const vercelLink = order.generatedVercelUrl || (order.platformNameEn ? `https://${order.platformNameEn.toLowerCase().replace(/[^a-z0-9-]/g, '')}.vercel.app` : 'https://vercel.app');
+                                const text = isRtl
+                                  ? `مرحباً بك ${order.clientName || 'عزيزنا العميل'}، معك إدارة منصة ليرن ويب. بخصوص طلبك لمنصة (${order.platformNameAr || order.projectTitle}) برابط: ${vercelLink}. كود العملية: ${order.referenceId || '-'}. نود إبلاغك بأن طلبك الآن: [${order.status === 'confirmed' ? 'معتمد ومفعل' : order.status === 'pending' ? 'قيد المراجعة السريعة' : 'بحاجة لمراجعة السداد'}].`
+                                  : `Hello ${order.clientName || 'Client'}, this is Lern Web Admin regarding your platform (${order.platformNameEn || order.projectTitle}) order. Ref: ${order.referenceId || '-'}. Status: ${order.status}.`;
+                                window.open(`https://wa.me/${targetPhone}?text=${encodeURIComponent(text)}`, '_blank');
+                              }}
+                              className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-emerald-700/30 hover:bg-emerald-700/50 border border-emerald-500/40 text-emerald-300 text-xs font-bold transition"
+                            >
+                              <MessageSquare className="w-3.5 h-3.5" />
+                              <span>{isRtl ? 'محادثة العميل عبر واتساب' : 'Chat via WhatsApp'}</span>
+                            </button>
+
+                            {/* Copy Reference */}
+                            {order.referenceId && (
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  navigator.clipboard.writeText(order.referenceId);
+                                  triggerSaveNotification(isRtl ? 'تم نسخ كود العملية!' : 'Ref code copied!');
+                                }}
+                                className="flex items-center gap-1 px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold transition"
+                              >
+                                <Copy className="w-3.5 h-3.5" />
+                                <span>{isRtl ? 'نسخ كود المعاملة' : 'Copy Ref'}</span>
+                              </button>
+                            )}
+                          </div>
+
+                          {/* Approval / Rejection Action Buttons */}
+                          <div className="flex items-center gap-2">
+                            {isPending && (
+                              <>
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    setRejectModalOrder(order);
+                                    setRejectNotesInput('');
+                                  }}
+                                  className="flex items-center gap-1.5 px-4 py-2 rounded-xl border border-rose-500/40 bg-rose-500/10 hover:bg-rose-500/20 text-rose-300 text-xs font-bold transition"
+                                >
+                                  <X className="w-4 h-4" />
+                                  <span>{isRtl ? 'رفض / طلب مراجعة' : 'Reject / Revise'}</span>
+                                </button>
+
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    if (!window.confirm(isRtl ? `هل أنت متأكد من مطابقة السداد واعتماد وتفعيل المنصة (${order.platformNameAr || order.projectTitle}) لحساب العميل فورياً؟` : `Approve & activate platform for user?`)) {
+                                      return;
+                                    }
+                                    const success = storageService.confirmOrderAndActivateSystem(order.id);
+                                    if (success) {
+                                      refreshLocalData();
+                                      triggerSaveNotification(isRtl ? `🎉 تم اعتماد طلب الشراء وتفعيل المنصة (${order.platformNameAr || order.projectTitle}) بنجاح وإشعار العميل فورياً!` : 'Order approved & platform activated!');
+                                    } else {
+                                      alert(isRtl ? 'حدث خطأ أثناء اعتماد الطلب، يرجى المحاولة لاحقاً.' : 'Error activating order.');
+                                    }
+                                  }}
+                                  className="flex items-center gap-2 px-5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-black shadow-lg shadow-emerald-600/30 transition cursor-pointer"
+                                >
+                                  <CheckCircle2 className="w-4 h-4" />
+                                  <span>{isRtl ? 'اعتماد وتفعيل المنصة فورياً (Approve & Activate)' : 'Approve & Activate Now'}</span>
+                                </button>
+                              </>
+                            )}
+
+                            {isConfirmed && (
+                              <div className="flex items-center gap-1.5 text-xs font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-3.5 py-1.5 rounded-xl">
+                                <Check className="w-4 h-4 text-emerald-400" />
+                                <span>{isRtl ? 'تم الاعتماد والتفعيل بنجاح • رخصة Vercel نشطة' : 'Activated & Certified'}</span>
+                              </div>
+                            )}
+
+                            {isRejected && (
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  const success = storageService.confirmOrderAndActivateSystem(order.id);
+                                  if (success) {
+                                    refreshLocalData();
+                                    triggerSaveNotification(isRtl ? 'تم التراجع واعتماد المنصة بنجاح!' : 'Order reconsidered & approved!');
+                                  }
+                                }}
+                                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-emerald-600 text-slate-300 hover:text-white text-xs font-bold transition"
+                              >
+                                <CheckCircle2 className="w-3.5 h-3.5" />
+                                <span>{isRtl ? 'إعادة النظر والاعتماد' : 'Re-Approve'}</span>
+                              </button>
+                            )}
+                          </div>
+                        </div>
                       </div>
-                      {member.whatsapp && (
-                        <a href={member.whatsapp} target="_blank" rel="noopener noreferrer" className="flex items-center justify-between p-2 rounded-xl bg-emerald-950/30 border border-emerald-500/30 text-emerald-400 hover:underline">
-                          <span>{isRtl ? 'رابط الواتساب' : 'WhatsApp'}</span>
-                          <ExternalLink className="w-3.5 h-3.5" />
-                        </a>
-                      )}
-                      {member.telegram && (
-                        <a href={member.telegram} target="_blank" rel="noopener noreferrer" className="flex items-center justify-between p-2 rounded-xl bg-blue-950/30 border border-blue-500/30 text-blue-400 hover:underline">
-                          <span>{isRtl ? 'رابط التلجرام' : 'Telegram'}</span>
-                          <ExternalLink className="w-3.5 h-3.5" />
-                        </a>
-                      )}
-                    </div>
+                    );
+                  })}
+                </div>
+              );
+            })()}
+
+            {/* Receipt Zoom Lightbox Modal */}
+            {selectedReceiptImage && (
+              <div 
+                className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fadeIn"
+                onClick={() => setSelectedReceiptImage(null)}
+              >
+                <div 
+                  className="relative max-w-3xl w-full bg-slate-900 border border-slate-700 rounded-2xl p-4 shadow-2xl space-y-3"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <div className="flex items-center justify-between border-b border-slate-800 pb-2">
+                    <h5 className="font-bold text-sm text-white flex items-center gap-2">
+                      <Eye className="w-4 h-4 text-blue-400" />
+                      <span>{isRtl ? 'معاينة إيصال السداد المرفوع من العميل' : 'Payment Receipt Verification Preview'}</span>
+                    </h5>
+                    <button
+                      type="button"
+                      onClick={() => setSelectedReceiptImage(null)}
+                      className="p-1 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800"
+                    >
+                      <X className="w-5 h-5" />
+                    </button>
                   </div>
 
-                  <div className="pt-3 border-t border-slate-800 flex items-center justify-between text-[11px] text-slate-400">
-                    <span>{isRtl ? 'الحالة: نشط ومنصرح' : 'Status: Active'}</span>
-                    <span className="font-mono">{new Date(member.createdAt).toLocaleDateString()}</span>
+                  <div className="max-h-[75vh] overflow-auto flex items-center justify-center rounded-xl bg-black/50 p-2">
+                    <img 
+                      src={selectedReceiptImage} 
+                      alt="Full Receipt" 
+                      className="max-h-[70vh] w-auto object-contain rounded-lg shadow-lg" 
+                    />
+                  </div>
+
+                  <div className="flex items-center justify-between text-xs text-slate-400 pt-2 border-t border-slate-800">
+                    <span>{isRtl ? 'تحقق من تطابق المبلغ ورقم المحول وكود العملية.' : 'Verify amount, sender phone, and transaction reference.'}</span>
+                    <button
+                      type="button"
+                      onClick={() => setSelectedReceiptImage(null)}
+                      className="px-4 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-white font-bold"
+                    >
+                      {isRtl ? 'إغلاق' : 'Close'}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* SECTION 2: MOBILE WALLETS & PAYMENT LINKS - Moved here for visibility fix */}
+        {activeSection === 'wallets' && (
+          <div className="rounded-3xl border border-slate-800 bg-slate-900/90 p-6 md:p-8 shadow-xl space-y-6">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-slate-800 pb-4">
+              <div>
+                <div className="inline-flex items-center gap-2 rounded-full bg-blue-500/20 px-3 py-1 text-xs font-bold text-blue-400 mb-1">
+                  <Smartphone className="w-3.5 h-3.5" />
+                  <span>{isRtl ? 'بوابات الدفع والمحافظ الإلكترونية وروابط التحويل' : 'Payment Gateways & Wallets'}</span>
+                </div>
+                <h3 className="text-xl md:text-2xl font-black text-white">{isRtl ? 'إدارة طرق الدفع وروابط التحويل المباشرة' : 'Mobile Wallets & Payment Links'}</h3>
+                <p className="text-xs md:text-sm text-slate-400">{isRtl ? 'أضف أو عدل أو احذف طرق الدفع وروابط التحويل. أي تعديل يظهر فورياً في لوحة تحكم العميل.' : 'Manage payment options and direct links. Changes appear immediately in Client Portal.'}</p>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setShowAddWalletModal(!showAddWalletModal)}
+                  className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 px-4 py-2.5 text-xs font-bold text-white shadow-lg hover:from-emerald-500 hover:to-teal-500 transition cursor-pointer active:scale-95"
+                >
+                  <Plus className="w-4 h-4" />
+                  <span>{isRtl ? 'إضافة طريقة دفع / رابط جديد' : 'Add New Payment / Link'}</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    storageService.saveWallets(wallets);
+                    triggerSaveNotification(isRtl ? 'تم حفظ وتحديث طرق الدفع بنجاح ومزامنتها لحظياً للعملاء!' : 'Wallets saved & synchronized in real-time!');
+                  }}
+                  className="flex items-center gap-2 rounded-xl bg-blue-600 px-5 py-2.5 text-xs font-bold text-white shadow-lg hover:bg-blue-500 transition cursor-pointer active:scale-95"
+                >
+                  <Save className="w-4 h-4" />
+                  <span>{isRtl ? 'حفظ كافة المحافظ' : 'Save All Wallets'}</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Inline Add New Wallet Modal / Card */}
+            {showAddWalletModal && (
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  if (!newWalletNameAr.trim()) return;
+                  const newW = {
+                    id: 'wallet-' + Date.now(),
+                    nameAr: newWalletNameAr.trim(),
+                    nameEn: newWalletNameEn.trim() || newWalletNameAr.trim(),
+                    number: newWalletNumber.trim(),
+                    url: newWalletUrl.trim(),
+                    badge: newWalletBadge.trim() || 'دفع فوري معتمد',
+                    instructionsAr: newWalletInstructions.trim() || 'يرجى إرسال إشعار التحويل بعد إتمام الدفع.',
+                    instructionsEn: 'Please send transfer receipt after completing payment.',
+                    color: newWalletColor,
+                    isActive: true
+                  };
+                  storageService.addWallet(newW);
+                  setWallets(storageService.getWallets());
+                  setShowAddWalletModal(false);
+                  setNewWalletNameAr('');
+                  setNewWalletNameEn('');
+                  setNewWalletNumber('');
+                  setNewWalletUrl('');
+                  triggerSaveNotification(isRtl ? 'تمت إضافة طريقة الدفع الجديدة ومزامنتها فورياً!' : 'New payment method added & synced live!');
+                }}
+                className="rounded-2xl border-2 border-emerald-500/40 bg-emerald-950/20 p-5 space-y-4 animate-fadeIn"
+              >
+                <div className="flex items-center justify-between border-b border-emerald-500/30 pb-3">
+                  <div className="flex items-center gap-2 text-emerald-400 font-bold text-sm">
+                    <Plus className="w-4 h-4" />
+                    <span>{isRtl ? 'إضافة وسيلة دفع أو محفظة إلكترونية أو رابط جديد:' : 'Add New Payment Gateway or Link:'}</span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setShowAddWalletModal(false)}
+                    className="text-slate-400 hover:text-white"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                  <div className="space-y-1">
+                    <label className="text-xs font-semibold text-slate-300">{isRtl ? 'اسم طريقة الدفع (بالعربية):' : 'Name (Arabic):'}</label>
+                    <input
+                      type="text"
+                      required
+                      value={newWalletNameAr}
+                      onChange={(e) => setNewWalletNameAr(e.target.value)}
+                      placeholder={isRtl ? 'مثال: انستاباي الفوري أو اتصالات كاش' : 'e.g. InstaPay Direct'}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-900 px-3 py-2 text-xs text-white"
+                    />
+                  </div>
+
+                  <div className="space-y-1">
+                    <label className="text-xs font-semibold text-slate-300">{isRtl ? 'اسم طريقة الدفع (بالإنجليزية):' : 'Name (English):'}</label>
+                    <input
+                      type="text"
+                      value={newWalletNameEn}
+                      onChange={(e) => setNewWalletNameEn(e.target.value)}
+                      placeholder="e.g. InstaPay IPN"
+                      className="w-full rounded-xl border border-slate-700 bg-slate-900 px-3 py-2 text-xs text-white"
+                    />
+                  </div>
+
+                  <div className="space-y-1">
+                    <label className="text-xs font-semibold text-slate-300">{isRtl ? 'رقم المحفظة / الحساب:' : 'Account / Wallet Number:'}</label>
+                    <input
+                      type="text"
+                      value={newWalletNumber}
+                      onChange={(e) => setNewWalletNumber(e.target.value)}
+                      placeholder="010XXXXXXXX or username@instapay"
+                      className="w-full rounded-xl border border-slate-700 bg-slate-900 px-3 py-2 text-xs font-mono font-bold text-white"
+                    />
+                  </div>
+                </div>
+
+                <div className="flex justify-end gap-2 pt-2">
+                  <button
+                    type="button"
+                    onClick={() => setShowAddWalletModal(false)}
+                    className="px-4 py-2 rounded-xl text-xs text-slate-400 hover:text-white"
+                  >
+                    {isRtl ? 'إلغاء' : 'Cancel'}
+                  </button>
+                  <button
+                    type="submit"
+                    className="flex items-center gap-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 px-5 py-2 text-xs font-bold text-white shadow-lg"
+                  >
+                    <CheckCircle2 className="w-4 h-4" />
+                    <span>{isRtl ? 'إضافة وحفظ الوسيلة فورياً' : 'Add & Publish Now'}</span>
+                  </button>
+                </div>
+              </form>
+            )}
+
+            {/* Existing Wallets List */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {wallets.map((w, idx) => (
+                <div key={w.id} className="rounded-2xl border border-slate-800 bg-slate-950 p-5 space-y-4 shadow-lg hover:border-slate-700 transition">
+                  <div className="flex items-center justify-between border-b border-slate-800/80 pb-3">
+                    <div className="flex items-center gap-2">
+                      <span className="w-3.5 h-3.5 rounded-full shrink-0" style={{ backgroundColor: w.color || '#2563eb' }} />
+                      <input
+                        type="text"
+                        value={w.nameAr || ''}
+                        onChange={(e) => {
+                          const updated = [...wallets];
+                          updated[idx].nameAr = e.target.value;
+                          setWallets(updated);
+                        }}
+                        className="font-bold text-sm text-white bg-transparent border-b border-transparent focus:border-blue-500 focus:outline-none"
+                      />
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <div className="space-y-1">
+                      <label className="text-[11px] font-semibold text-slate-400">{isRtl ? 'رقم المحفظة / الحساب:' : 'Account / Wallet Number:'}</label>
+                      <input
+                        type="text"
+                        value={w.number || ''}
+                        onChange={(e) => {
+                          const updated = [...wallets];
+                          updated[idx].number = e.target.value;
+                          setWallets(updated);
+                        }}
+                        className="w-full rounded-xl border border-slate-700 bg-slate-900 px-3.5 py-2 text-xs font-mono font-bold text-white focus:border-blue-500 focus:outline-none"
+                      />
+                    </div>
                   </div>
                 </div>
               ))}
@@ -2194,6 +2927,87 @@ export default function AdminDashboard({
                   })}
                 </div>
               )}
+            </div>
+
+            {/* Admin Security & Passcode Change Form */}
+            <div className="rounded-3xl border border-rose-500/30 bg-slate-900/90 p-6 md:p-8 shadow-xl space-y-4">
+              <div className="flex items-center gap-3 border-b border-slate-800 pb-4">
+                <div className="p-2.5 rounded-2xl bg-rose-500/20 text-rose-400">
+                  <Key className="w-6 h-6" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-bold text-white">
+                    {isRtl ? 'تغيير كلمة سر الأدمن ولوحة التحكم (Admin Passcode Management)' : 'Change Admin Control Passcode'}
+                  </h3>
+                  <p className="text-xs text-slate-400">
+                    {isRtl ? 'قم بتحديث كلمة سر الدخول السرية الخاصة بالأدمن (كود 100100 أو الكود المخصص)' : 'Update master administrative passcode used to log into control panel.'}
+                  </p>
+                </div>
+              </div>
+
+              <form 
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  if (!currentPasscodeInput.trim() || !newPasscodeInput.trim()) {
+                    setPasscodeMsg({ isError: true, text: isRtl ? 'يرجى إدخال كلمة السر الحالية والجديدة' : 'Please enter current and new passcode' });
+                    return;
+                  }
+                  const res = storageService.updateAdminPasscode(currentPasscodeInput, newPasscodeInput);
+                  if (res.success) {
+                    setPasscodeMsg({ isError: false, text: isRtl ? res.messageAr : res.messageEn });
+                    setCurrentPasscodeInput('');
+                    setNewPasscodeInput('');
+                    setSettings(storageService.getSettings());
+                    triggerSaveNotification(isRtl ? 'تم تغيير كلمة سر الأدمن بنجاح!' : 'Passcode updated successfully!');
+                  } else {
+                    setPasscodeMsg({ isError: true, text: isRtl ? res.messageAr : res.messageEn });
+                  }
+                }}
+                className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2"
+              >
+                <div className="space-y-1.5">
+                  <label className="text-xs font-bold text-slate-300">{isRtl ? 'كلمة السر الحالية:' : 'Current Passcode:'}</label>
+                  <input
+                    type="password"
+                    value={currentPasscodeInput}
+                    onChange={(e) => setCurrentPasscodeInput(e.target.value)}
+                    placeholder="100100"
+                    className="w-full rounded-2xl border border-slate-800 bg-slate-950 px-4 py-3 text-xs md:text-sm font-mono text-white focus:border-rose-500 focus:outline-none"
+                    required
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="text-xs font-bold text-slate-300">{isRtl ? 'كلمة السر الجديدة:' : 'New Passcode:'}</label>
+                  <input
+                    type="password"
+                    value={newPasscodeInput}
+                    onChange={(e) => setNewPasscodeInput(e.target.value)}
+                    placeholder={isRtl ? 'أدخل الكود الجديد...' : 'Enter new passcode...'}
+                    className="w-full rounded-2xl border border-slate-800 bg-slate-950 px-4 py-3 text-xs md:text-sm font-mono text-white focus:border-rose-500 focus:outline-none"
+                    required
+                  />
+                </div>
+
+                {passcodeMsg && (
+                  <div className={`md:col-span-2 p-3 rounded-xl border text-xs font-bold flex items-center gap-2 ${
+                    passcodeMsg.isError ? 'bg-rose-500/10 border-rose-500/30 text-rose-300' : 'bg-emerald-500/10 border-emerald-500/30 text-emerald-300'
+                  }`}>
+                    {passcodeMsg.isError ? <AlertCircle className="w-4 h-4 shrink-0 text-rose-400" /> : <CheckCircle2 className="w-4 h-4 shrink-0 text-emerald-400" />}
+                    <span>{passcodeMsg.text}</span>
+                  </div>
+                )}
+
+                <div className="md:col-span-2 flex justify-end">
+                  <button
+                    type="submit"
+                    className="px-6 py-3 rounded-2xl bg-rose-600 hover:bg-rose-500 text-white text-xs md:text-sm font-bold shadow-lg transition cursor-pointer flex items-center gap-2"
+                  >
+                    <Save className="w-4 h-4" />
+                    <span>{isRtl ? 'حفظ وتحديث كلمة سر الأدمن' : 'Save New Passcode'}</span>
+                  </button>
+                </div>
+              </form>
             </div>
           </div>
         )}
@@ -2778,6 +3592,15 @@ export default function AdminDashboard({
         {/* SECTION 0: VISUAL ANALYTICS DASHBOARD (RECHARTS) */}
         {activeSection === 'analytics' && (
           <div className="space-y-8 animate-fadeIn">
+            {/* Real-time Recharts Admin Analytics Component */}
+            <AdminAnalyticsDashboard 
+              users={users} 
+              orders={orders} 
+              activityLogs={activityLogs} 
+              projects={projects} 
+              lang={lang} 
+            />
+
             {/* Header Banner */}
             <div className="rounded-3xl border border-blue-500/40 bg-gradient-to-r from-blue-950 via-slate-900 to-indigo-950 p-6 md:p-8 shadow-2xl space-y-3">
               <div className="flex items-center gap-2 text-blue-400 font-bold text-xs uppercase tracking-wider">
@@ -3592,9 +4415,45 @@ export default function AdminDashboard({
                       type="text"
                       value={safeSet.heroBadgeEn || ''}
                       onChange={(e) => updateSettingsState({ heroBadgeEn: e.target.value })}
-                      placeholder="Certified Cloud Educational Platform v3.8"
+                      placeholder="Lern Web Cloud Enterprise v3.8"
                       className="w-full rounded-xl border border-slate-700 bg-slate-900 px-3.5 py-2.5 text-xs text-white"
                     />
+                  </div>
+                </div>
+
+                <div className="pt-4 border-t border-slate-800">
+                  <div className="flex items-center justify-between p-4 rounded-2xl bg-blue-950/20 border border-blue-500/30">
+                    <div>
+                      <h4 className="text-sm font-bold text-white flex items-center gap-2">
+                        <Users className="w-4 h-4 text-blue-400" />
+                        <span>{isRtl ? 'تفعيل قسم طلب الانضمام لفريق العمل' : 'Enable Join Our Team Section'}</span>
+                      </h4>
+                      <p className="text-[10px] text-slate-400 mt-0.5">
+                        {isRtl 
+                          ? 'عند تفعيله، يظهر خيار للعملاء لتقديم طلبات انضمام (خدمة عملاء، مبرمجين، مراقبين).' 
+                          : 'When enabled, customers can apply to join your team via their profile.'}
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => updateSettingsState({ isJoinPlatformEnabled: !safeSet.isJoinPlatformEnabled })}
+                      className={`w-12 h-6 rounded-full transition-colors ${safeSet.isJoinPlatformEnabled ? 'bg-emerald-600' : 'bg-slate-700'}`}
+                    >
+                      <div className={`w-4 h-4 rounded-full bg-white transition-transform transform ${safeSet.isJoinPlatformEnabled ? 'translate-x-7' : 'translate-x-1'}`} />
+                    </button>
+                  </div>
+                  <div className="space-y-1.5 md:col-span-2">
+                    <label className="text-xs font-semibold text-slate-300">{isRtl ? 'مفتاح اجتماعات زوم (Zoom Meeting Key):' : 'Zoom Meeting Key (API/Key):'}</label>
+                    <div className="relative">
+                      <input
+                        type="text"
+                        value={safeSet.zoomMeetingKey || ''}
+                        onChange={(e) => updateSettingsState({ zoomMeetingKey: e.target.value })}
+                        placeholder="e.g. zoom_pk_..."
+                        className="w-full rounded-xl border border-slate-700 bg-slate-900 px-3.5 py-2.5 text-xs font-mono text-white focus:border-blue-500"
+                      />
+                      <div className="absolute left-3 top-1/2 -translate-y-1/2 text-[10px] text-slate-500 font-bold">ZOOM</div>
+                    </div>
                   </div>
 
                   <div className="space-y-1.5 md:col-span-2">
@@ -3906,307 +4765,7 @@ export default function AdminDashboard({
           </div>
         )}
 
-        {/* SECTION 2: MOBILE WALLETS & PAYMENT LINKS */}
-        {activeSection === 'wallets' && (
-          <div className="rounded-3xl border border-slate-800 bg-slate-900/90 p-6 md:p-8 shadow-xl space-y-6">
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-slate-800 pb-4">
-              <div>
-                <div className="inline-flex items-center gap-2 rounded-full bg-blue-500/20 px-3 py-1 text-xs font-bold text-blue-400 mb-1">
-                  <Smartphone className="w-3.5 h-3.5" />
-                  <span>{isRtl ? 'بوابات الدفع والمحافظ الإلكترونية وروابط التحويل' : 'Payment Gateways & Wallets'}</span>
-                </div>
-                <h3 className="text-xl md:text-2xl font-black text-white">{isRtl ? 'إدارة طرق الدفع وروابط التحويل المباشرة' : 'Mobile Wallets & Payment Links'}</h3>
-                <p className="text-xs md:text-sm text-slate-400">{isRtl ? 'أضف أو عدل أو احذف طرق الدفع وروابط التحويل. أي تعديل يظهر فورياً في لوحة تحكم العميل.' : 'Manage payment options and direct links. Changes appear immediately in Client Portal.'}</p>
-              </div>
 
-              <div className="flex items-center gap-2">
-                <button
-                  type="button"
-                  onClick={() => setShowAddWalletModal(!showAddWalletModal)}
-                  className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 px-4 py-2.5 text-xs font-bold text-white shadow-lg hover:from-emerald-500 hover:to-teal-500 transition cursor-pointer active:scale-95"
-                >
-                  <Plus className="w-4 h-4" />
-                  <span>{isRtl ? 'إضافة طريقة دفع / رابط جديد' : 'Add New Payment / Link'}</span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => {
-                    storageService.saveWallets(wallets);
-                    triggerSaveNotification(isRtl ? 'تم حفظ وتحديث طرق الدفع بنجاح ومزامنتها لحظياً للعملاء!' : 'Wallets saved & synchronized in real-time!');
-                  }}
-                  className="flex items-center gap-2 rounded-xl bg-blue-600 px-5 py-2.5 text-xs font-bold text-white shadow-lg hover:bg-blue-500 transition cursor-pointer active:scale-95"
-                >
-                  <Save className="w-4 h-4" />
-                  <span>{isRtl ? 'حفظ كافة المحافظ' : 'Save All Wallets'}</span>
-                </button>
-              </div>
-            </div>
-
-            {/* Inline Add New Wallet Modal / Card */}
-            {showAddWalletModal && (
-              <form
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  if (!newWalletNameAr.trim()) return;
-                  const newW = {
-                    id: 'wallet-' + Date.now(),
-                    nameAr: newWalletNameAr.trim(),
-                    nameEn: newWalletNameEn.trim() || newWalletNameAr.trim(),
-                    number: newWalletNumber.trim(),
-                    url: newWalletUrl.trim(),
-                    badge: newWalletBadge.trim() || 'دفع فوري معتمد',
-                    instructionsAr: newWalletInstructions.trim() || 'يرجى إرسال إشعار التحويل بعد إتمام الدفع.',
-                    instructionsEn: 'Please send transfer receipt after completing payment.',
-                    color: newWalletColor,
-                    isActive: true
-                  };
-                  storageService.addWallet(newW);
-                  setWallets(storageService.getWallets());
-                  setShowAddWalletModal(false);
-                  setNewWalletNameAr('');
-                  setNewWalletNameEn('');
-                  setNewWalletNumber('');
-                  setNewWalletUrl('');
-                  triggerSaveNotification(isRtl ? 'تمت إضافة طريقة الدفع الجديدة ومزامنتها فورياً!' : 'New payment method added & synced live!');
-                }}
-                className="rounded-2xl border-2 border-emerald-500/40 bg-emerald-950/20 p-5 space-y-4 animate-fadeIn"
-              >
-                <div className="flex items-center justify-between border-b border-emerald-500/30 pb-3">
-                  <div className="flex items-center gap-2 text-emerald-400 font-bold text-sm">
-                    <Plus className="w-4 h-4" />
-                    <span>{isRtl ? 'إضافة وسيلة دفع أو محفظة إلكترونية أو رابط جديد:' : 'Add New Payment Gateway or Link:'}</span>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => setShowAddWalletModal(false)}
-                    className="text-slate-400 hover:text-white"
-                  >
-                    <X className="w-4 h-4" />
-                  </button>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-                  <div className="space-y-1">
-                    <label className="text-xs font-semibold text-slate-300">{isRtl ? 'اسم طريقة الدفع (بالعربية):' : 'Name (Arabic):'}</label>
-                    <input
-                      type="text"
-                      required
-                      value={newWalletNameAr}
-                      onChange={(e) => setNewWalletNameAr(e.target.value)}
-                      placeholder={isRtl ? 'مثال: انستاباي الفوري أو اتصالات كاش' : 'e.g. InstaPay Direct'}
-                      className="w-full rounded-xl border border-slate-700 bg-slate-900 px-3 py-2 text-xs text-white"
-                    />
-                  </div>
-
-                  <div className="space-y-1">
-                    <label className="text-xs font-semibold text-slate-300">{isRtl ? 'اسم طريقة الدفع (بالإنجليزية):' : 'Name (English):'}</label>
-                    <input
-                      type="text"
-                      value={newWalletNameEn}
-                      onChange={(e) => setNewWalletNameEn(e.target.value)}
-                      placeholder="e.g. InstaPay IPN"
-                      className="w-full rounded-xl border border-slate-700 bg-slate-900 px-3 py-2 text-xs text-white"
-                    />
-                  </div>
-
-                  <div className="space-y-1">
-                    <label className="text-xs font-semibold text-slate-300">{isRtl ? 'رقم المحفظة / الحساب:' : 'Account / Wallet Number:'}</label>
-                    <input
-                      type="text"
-                      value={newWalletNumber}
-                      onChange={(e) => setNewWalletNumber(e.target.value)}
-                      placeholder="010XXXXXXXX or username@instapay"
-                      className="w-full rounded-xl border border-slate-700 bg-slate-900 px-3 py-2 text-xs font-mono font-bold text-white"
-                    />
-                  </div>
-
-                  <div className="space-y-1">
-                    <label className="text-xs font-semibold text-slate-300">{isRtl ? 'رابط الدفع المباشر (اختياري URL):' : 'Payment URL Link (Optional):'}</label>
-                    <input
-                      type="url"
-                      value={newWalletUrl}
-                      onChange={(e) => setNewWalletUrl(e.target.value)}
-                      placeholder="https://instapay.eg/... or https://paypal.me/..."
-                      className="w-full rounded-xl border border-slate-700 bg-slate-900 px-3 py-2 text-xs font-mono text-emerald-400"
-                    />
-                  </div>
-
-                  <div className="space-y-1">
-                    <label className="text-xs font-semibold text-slate-300">{isRtl ? 'شارة تمييز الوسيلة:' : 'Badge Text:'}</label>
-                    <input
-                      type="text"
-                      value={newWalletBadge}
-                      onChange={(e) => setNewWalletBadge(e.target.value)}
-                      placeholder="دفع فوري معتمد"
-                      className="w-full rounded-xl border border-slate-700 bg-slate-900 px-3 py-2 text-xs text-white"
-                    />
-                  </div>
-
-                  <div className="space-y-1">
-                    <label className="text-xs font-semibold text-slate-300">{isRtl ? 'اللون المميز:' : 'Accent Color:'}</label>
-                    <div className="flex items-center gap-2">
-                      <input
-                        type="color"
-                        value={newWalletColor}
-                        onChange={(e) => setNewWalletColor(e.target.value)}
-                        className="w-10 h-8 rounded-lg cursor-pointer bg-slate-900 border border-slate-700 p-0.5"
-                      />
-                      <input
-                        type="text"
-                        value={newWalletColor}
-                        onChange={(e) => setNewWalletColor(e.target.value)}
-                        className="flex-1 rounded-xl border border-slate-700 bg-slate-900 px-3 py-1.5 text-xs font-mono text-white"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="space-y-1 sm:col-span-2 md:col-span-3">
-                    <label className="text-xs font-semibold text-slate-300">{isRtl ? 'تعليمات وإرشادات الدفع للعميل:' : 'Payment Instructions:'}</label>
-                    <input
-                      type="text"
-                      value={newWalletInstructions}
-                      onChange={(e) => setNewWalletInstructions(e.target.value)}
-                      placeholder={isRtl ? 'مثال: حول المبلغ ثم احتفظ بصورة الإيصال لإرسالها عبر الواتساب' : 'Transfer funds and retain transaction receipt'}
-                      className="w-full rounded-xl border border-slate-700 bg-slate-900 px-3 py-2 text-xs text-white"
-                    />
-                  </div>
-                </div>
-
-                <div className="flex justify-end gap-2 pt-2">
-                  <button
-                    type="button"
-                    onClick={() => setShowAddWalletModal(false)}
-                    className="px-4 py-2 rounded-xl text-xs text-slate-400 hover:text-white"
-                  >
-                    {isRtl ? 'إلغاء' : 'Cancel'}
-                  </button>
-                  <button
-                    type="submit"
-                    className="flex items-center gap-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 px-5 py-2 text-xs font-bold text-white shadow-lg"
-                  >
-                    <CheckCircle2 className="w-4 h-4" />
-                    <span>{isRtl ? 'إضافة وحفظ الوسيلة فورياً' : 'Add & Publish Now'}</span>
-                  </button>
-                </div>
-              </form>
-            )}
-
-            {/* Existing Wallets List */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {wallets.map((w, idx) => (
-                <div key={w.id} className="rounded-2xl border border-slate-800 bg-slate-950 p-5 space-y-4 shadow-lg hover:border-slate-700 transition">
-                  <div className="flex items-center justify-between border-b border-slate-800/80 pb-3">
-                    <div className="flex items-center gap-2">
-                      <span className="w-3.5 h-3.5 rounded-full shrink-0" style={{ backgroundColor: w.color || '#2563eb' }} />
-                      <input
-                        type="text"
-                        value={w.nameAr || ''}
-                        onChange={(e) => {
-                          const updated = [...wallets];
-                          updated[idx].nameAr = e.target.value;
-                          setWallets(updated);
-                        }}
-                        className="font-bold text-sm text-white bg-transparent border-b border-transparent focus:border-blue-500 focus:outline-none"
-                      />
-                    </div>
-
-                    <div className="flex items-center gap-2">
-                      <label className="flex items-center gap-1.5 cursor-pointer text-xs">
-                        <input
-                          type="checkbox"
-                          checked={w.isActive}
-                          onChange={(e) => {
-                            const updated = [...wallets];
-                            updated[idx].isActive = e.target.checked;
-                            setWallets(updated);
-                          }}
-                          className="rounded accent-blue-600"
-                        />
-                        <span className={w.isActive ? 'text-emerald-400 font-bold' : 'text-slate-500'}>
-                          {w.isActive ? (isRtl ? 'مفعلة' : 'Active') : (isRtl ? 'معطلة' : 'Inactive')}
-                        </span>
-                      </label>
-
-                      <button
-                        type="button"
-                        onClick={() => {
-                          if (confirm(isRtl ? `هل أنت متأكد من حذف طريقة الدفع "${w.nameAr}"؟` : 'Delete this payment method?')) {
-                            storageService.deleteWallet(w.id);
-                            setWallets(storageService.getWallets());
-                            triggerSaveNotification(isRtl ? 'تم حذف طريقة الدفع بنجاح ومزامنتها فورياً!' : 'Payment method deleted & synced!');
-                          }
-                        }}
-                        className="p-1.5 rounded-lg text-rose-400 hover:bg-rose-500/20 transition cursor-pointer"
-                        title={isRtl ? 'حذف طريقة الدفع' : 'Delete'}
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                    </div>
-                  </div>
-
-                  <div className="space-y-2">
-                    <div className="space-y-1">
-                      <label className="text-[11px] font-semibold text-slate-400">{isRtl ? 'رقم المحفظة / الحساب:' : 'Account / Wallet Number:'}</label>
-                      <input
-                        type="text"
-                        value={w.number || ''}
-                        onChange={(e) => {
-                          const updated = [...wallets];
-                          updated[idx].number = e.target.value;
-                          setWallets(updated);
-                        }}
-                        className="w-full rounded-xl border border-slate-700 bg-slate-900 px-3.5 py-2 text-xs font-mono font-bold text-white focus:border-blue-500 focus:outline-none"
-                      />
-                    </div>
-
-                    <div className="space-y-1">
-                      <div className="flex items-center justify-between">
-                        <label className="text-[11px] font-semibold text-slate-400">{isRtl ? 'رابط الدفع المباشر (URL Link):' : 'Direct Payment Link (URL):'}</label>
-                        {(w.url || (w.number && w.number.startsWith('http'))) && (
-                          <a
-                            href={w.url || w.number}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-[10px] text-blue-400 hover:underline flex items-center gap-1"
-                          >
-                            <span>{isRtl ? 'تجربة الرابط' : 'Test Link'}</span>
-                            <ExternalLink className="w-3 h-3" />
-                          </a>
-                        )}
-                      </div>
-                      <input
-                        type="url"
-                        value={w.url || ''}
-                        onChange={(e) => {
-                          const updated = [...wallets];
-                          updated[idx].url = e.target.value;
-                          setWallets(updated);
-                        }}
-                        placeholder="https://instapay.eg/... or https://..."
-                        className="w-full rounded-xl border border-slate-700 bg-slate-900 px-3.5 py-2 text-xs font-mono text-emerald-400 focus:border-blue-500 focus:outline-none"
-                      />
-                    </div>
-
-                    <div className="space-y-1">
-                      <label className="text-[11px] font-semibold text-slate-400">{isRtl ? 'تعليمات وإرشادات التحويل:' : 'Instructions:'}</label>
-                      <input
-                        type="text"
-                        value={w.instructionsAr || ''}
-                        onChange={(e) => {
-                          const updated = [...wallets];
-                          updated[idx].instructionsAr = e.target.value;
-                          setWallets(updated);
-                        }}
-                        className="w-full rounded-xl border border-slate-700 bg-slate-900 px-3.5 py-2 text-xs text-slate-300 focus:border-blue-500 focus:outline-none"
-                      />
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
 
         {/* SECTION 3: SOCIAL MEDIA & IDENTITY COLORS */}
         {activeSection === 'social' && (
@@ -4783,8 +5342,19 @@ export default function AdminDashboard({
                         : (isRtl ? 'اليوم' : 'Today');
                       return (
                         <tr key={u.id} className="text-slate-300 hover:bg-slate-950/50 transition">
-                          <td className="px-4 py-3 font-bold text-white flex items-center gap-2">
-                            <span>{u.name}</span>
+                          <td className="px-4 py-3 font-bold text-white flex items-center gap-2.5">
+                            {/* Client Avatar / Profile Picture */}
+                            <div className="relative w-8 h-8 rounded-full overflow-hidden border border-blue-500/40 bg-gradient-to-tr from-blue-600 to-indigo-600 flex items-center justify-center text-white text-xs font-black shrink-0">
+                              {u.avatarUrl ? (
+                                <img src={u.avatarUrl} alt={u.name} className="w-full h-full object-cover" />
+                              ) : (
+                                <span>{u.name ? u.name.charAt(0) : 'U'}</span>
+                              )}
+                            </div>
+                            <div className="space-y-0.5">
+                              <span className="block font-bold text-white">{u.name}</span>
+                              {u.email && <span className="block text-[10px] text-slate-500 font-mono">{u.email}</span>}
+                            </div>
                             {u.isVerified && (
                               <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[10px] font-bold bg-cyan-500/20 text-cyan-300 border border-cyan-500/30">
                                 <CheckCircle2 className="w-3 h-3 text-cyan-400" />
@@ -4794,7 +5364,7 @@ export default function AdminDashboard({
                           </td>
                           <td className="px-4 py-3 font-mono">{u.phone}</td>
                           <td className="px-4 py-3">
-                            <span className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 bg-blue-500/20 text-blue-400 font-bold">
+                            <span className="inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 bg-blue-500/20 text-blue-400 font-bold text-[11px]">
                               {u.roleAr || 'عميل معتمد'}
                             </span>
                           </td>
@@ -4830,6 +5400,47 @@ export default function AdminDashboard({
                           <td className="px-4 py-3 text-slate-400 font-mono">{formattedDate}</td>
                           <td className="px-4 py-3 text-center">
                             <div className="flex items-center justify-center gap-1.5">
+                              {/* Hire / Promote to Staff Button */}
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  const roleChoice = prompt(
+                                    isRtl 
+                                      ? `اختر المنصب التوظيفي للعميل (${u.name}):\n1 - مشرف عام\n2 - مبرمج ومطور\n3 - خدمة عملاء ودعم فني`
+                                      : `Choose staff role for (${u.name}):\n1 - Admin\n2 - Developer\n3 - Customer Support`
+                                  );
+                                  let chosenTitle = 'مسؤول خدمة العملاء';
+                                  if (roleChoice === '1') chosenTitle = 'مشرف عام ومنسق المنظومة';
+                                  else if (roleChoice === '2') chosenTitle = 'مبرمج ومطور معتمد';
+                                  else if (roleChoice === '3') chosenTitle = 'مسؤول خدمة العملاء والدعم الفني';
+                                  else if (!roleChoice) return;
+
+                                  const member = {
+                                    id: 'staff-' + u.id,
+                                    name: u.name,
+                                    roleAr: chosenTitle,
+                                    roleEn: chosenTitle,
+                                    phone: u.phone,
+                                    whatsapp: `https://wa.me/${u.phone.replace(/[^\d]/g, '')}`,
+                                    permissions: ['analytics', 'cms', 'orders', 'support'],
+                                    isActive: true,
+                                    createdAt: new Date().toISOString()
+                                  };
+                                  storageService.saveStaffMember(member);
+                                  refreshLocalData();
+                                  alert(
+                                    isRtl 
+                                      ? `🎉 تم توظيف العميل (${u.name}) كـ [${chosenTitle}] بنجاح!\nيمكنه الآن الدخول برقم موبايله (${u.phone}) مع كود الإدارة 100100.`
+                                      : `Staff member added! Login phone: ${u.phone}, passcode: 100100.`
+                                  );
+                                }}
+                                className="px-2.5 py-1 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-[11px] font-bold transition flex items-center gap-1 cursor-pointer"
+                                title={isRtl ? 'توظيف العميل كمشرف أو مبرمج' : 'Promote to Staff'}
+                              >
+                                <UserCheck className="w-3.5 h-3.5 text-indigo-200" />
+                                <span>{isRtl ? 'توظيف كمشرف' : 'Promote'}</span>
+                              </button>
+
                               <button
                                 type="button"
                                 onClick={() => {
@@ -4839,7 +5450,7 @@ export default function AdminDashboard({
                                     triggerSaveNotification(isRtl ? 'تم حذف حساب العميل بنجاح.' : 'User account deleted.');
                                   }
                                 }}
-                                className="p-1.5 rounded-lg text-rose-400 hover:bg-rose-500/20 transition"
+                                className="p-1.5 rounded-lg text-rose-400 hover:bg-rose-500/20 transition cursor-pointer"
                                 title={isRtl ? 'حذف الحساب' : 'Delete User'}
                               >
                                 <Trash2 className="w-4 h-4" />
@@ -5059,6 +5670,30 @@ export default function AdminDashboard({
                   </div>
                 </div>
               ))}
+            </div>
+          </div>
+        )}
+
+        {/* SECTION: JOB APPLICATIONS MANAGEMENT */}
+        {activeSection === 'job-applications' && (
+          <div className="space-y-8 animate-fadeIn">
+            <div className="rounded-3xl border border-blue-500/30 bg-gradient-to-r from-blue-950 via-slate-900 to-indigo-950 p-6 md:p-8 shadow-2xl space-y-3">
+              <div className="inline-flex items-center gap-2 rounded-full border border-blue-500/30 bg-blue-500/10 px-4 py-1.5 text-xs font-semibold text-blue-400">
+                <Briefcase className="w-4 h-4 text-blue-400" />
+                <span>{isRtl ? 'إدارة طلبات الانضمام والتوظيف' : 'Job Applications & Recruitment Manager'}</span>
+              </div>
+              <h2 className="text-2xl md:text-3xl font-extrabold text-white">
+                {isRtl ? 'مراجعة طلبات الانضمام لفريق العمل' : 'Review Staff Join Requests'}
+              </h2>
+              <p className="text-xs md:text-sm text-slate-300 max-w-2xl leading-relaxed">
+                {isRtl 
+                  ? 'هنا يمكنك مراجعة كافة الطلبات المقدمة من العملاء والزوار للانضمام لفريقك. عند قبول الطلب، يتم إرسال رسالة واتساب للعميل وتفعيل صلاحياته تلقائياً.' 
+                  : 'Review all applications from users who want to join your team. Accepting a request automatically assigns roles and notifies them via WhatsApp.'}
+              </p>
+            </div>
+
+            <div className="rounded-3xl border border-slate-800 bg-slate-900/90 p-6 md:p-8 shadow-xl">
+               <AdminJobApplications lang={lang} />
             </div>
           </div>
         )}

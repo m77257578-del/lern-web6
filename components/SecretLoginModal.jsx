@@ -30,6 +30,13 @@ export default function SecretLoginModal({
   const [showPass, setShowPass] = useState(false);
   const [visitorSuccess, setVisitorSuccess] = useState(false);
 
+  const [isForgotPass, setIsForgotPass] = useState(false);
+  const [resetPhone, setResetPhone] = useState('');
+  const [resetOtp, setResetOtp] = useState('');
+  const [resetNewPass, setResetNewPass] = useState('');
+  const [otpStep, setOtpStep] = useState('phone'); // 'phone' | 'otp'
+  const [otpSuccessMsg, setOtpSuccessMsg] = useState('');
+
   useEffect(() => {
     if (isOpen) {
       setVisitorSubTab(initialTab);
@@ -39,6 +46,12 @@ export default function SecretLoginModal({
       setVisitorName('');
       setVisitorEmail('');
       setVisitorSuccess(false);
+      setIsForgotPass(false);
+      setResetPhone('');
+      setResetOtp('');
+      setResetNewPass('');
+      setOtpStep('phone');
+      setOtpSuccessMsg('');
     }
   }, [isOpen, initialTab]);
 
@@ -63,10 +76,8 @@ export default function SecretLoginModal({
     }
 
     // 2. Check Staff / Moderator discreet login (staff phone number with adminPass or '100100')
-    const staffList = storageService.getStaff();
-    const matchedStaff = staffList.find(s => s.phone.trim() === identifier && (password === adminPass || password === '100100' || password === s.phone));
-    if (matchedStaff) {
-      storageService.loginAdmin(adminPass);
+    const success = storageService.loginStaff(identifier, password);
+    if (success) {
       if (onAdminSuccess) onAdminSuccess();
       else if (onLoginSuccess) onLoginSuccess();
       onClose();
@@ -126,6 +137,44 @@ export default function SecretLoginModal({
     }
   };
 
+  const handleRequestOtp = (e) => {
+    e.preventDefault();
+    setErrorMsg('');
+    setOtpSuccessMsg('');
+    if (!resetPhone.trim()) {
+      setErrorMsg(isRtl ? 'يرجى إدخال رقم الهاتف' : 'Please enter phone number');
+      return;
+    }
+    const res = storageService.requestPasswordResetOtp(resetPhone);
+    if (res.whatsappUrl) {
+      window.open(res.whatsappUrl, '_blank');
+    }
+    setOtpSuccessMsg(isRtl ? `تم استخراج كود التحقق OTP (${res.otpCode}) وفتح الواتساب لارسال الرمز. أدخل الكود أدناه لتغيير كلمة السر.` : `OTP (${res.otpCode}) generated and WhatsApp link opened.`);
+    setOtpStep('otp');
+  };
+
+  const handleVerifyOtpAndReset = (e) => {
+    e.preventDefault();
+    setErrorMsg('');
+    if (!resetOtp.trim() || !resetNewPass.trim()) {
+      setErrorMsg(isRtl ? 'يرجى إدخال كود التحقق وكلمة السر الجديدة' : 'Please enter OTP code and new password');
+      return;
+    }
+    const res = storageService.verifyOtpAndResetPassword(resetPhone, resetOtp, resetNewPass);
+    if (res.success) {
+      setVisitorSuccess(true);
+      setTimeout(() => {
+        setVisitorSuccess(false);
+        setIsForgotPass(false);
+        setVisitorSubTab('login');
+        setVisitorPhone(resetPhone);
+        setVisitorPassword(resetNewPass);
+      }, 1200);
+    } else {
+      setErrorMsg(isRtl ? res.messageAr : res.messageEn);
+    }
+  };
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-md p-4 animate-fadeIn">
       <div className="relative w-full max-w-md overflow-hidden rounded-3xl border border-slate-700 bg-slate-900 p-6 md:p-8 text-white shadow-2xl space-y-6">
@@ -146,127 +195,266 @@ export default function SecretLoginModal({
           </div>
 
           <h3 className="text-xl md:text-2xl font-black">
-            {isRtl ? (visitorSubTab === 'login' ? 'تسجيل دخول العميل' : 'إنشاء حساب جديد') : (visitorSubTab === 'login' ? 'Client Sign In' : 'Create Account')}
+            {isForgotPass 
+              ? (isRtl ? 'استعادة كلمة السر عبر OTP' : 'Password Reset via WhatsApp OTP')
+              : (isRtl ? (visitorSubTab === 'login' ? 'تسجيل دخول العميل' : 'إنشاء حساب جديد') : (visitorSubTab === 'login' ? 'Client Sign In' : 'Create Account'))}
           </h3>
 
           <p className="text-xs text-slate-400 max-w-xs mx-auto">
-            {isRtl ? 'سجل بياناتك للوصول إلى لوحة العميل وحفظ وتتبع مسودات التخصيص' : 'Enter your details to access your dashboard and track AI drafts'}
+            {isForgotPass 
+              ? (isRtl ? 'أدخل رقم هاتفك لاستلام رمز التحقق OTP عبر واتساب وإعادة تعيين كلمة السر' : 'Enter phone number to receive 6-digit OTP code on WhatsApp')
+              : (isRtl ? 'سجل بياناتك للوصول إلى لوحة العميل وحفظ وتتبع مسودات التخصيص' : 'Enter your details to access your dashboard and track AI drafts')}
           </p>
         </div>
 
-        {/* Tab Switcher */}
-        <div className="flex border-b border-slate-800">
-           <button 
-             type="button"
-             onClick={() => { setVisitorSubTab('login'); setErrorMsg(''); }}
-             className={`flex-1 py-2 text-xs font-bold transition-all cursor-pointer ${visitorSubTab === 'login' ? 'text-blue-400 border-b-2 border-blue-500' : 'text-slate-500 hover:text-slate-300'}`}
-           >
-             {isRtl ? 'لدى حساب بالفعل' : 'I have an account'}
-           </button>
-           <button 
-             type="button"
-             onClick={() => { setVisitorSubTab('register'); setErrorMsg(''); }}
-             className={`flex-1 py-2 text-xs font-bold transition-all cursor-pointer ${visitorSubTab === 'register' ? 'text-blue-400 border-b-2 border-blue-500' : 'text-slate-500 hover:text-slate-300'}`}
-           >
-             {isRtl ? 'إنشاء حساب جديد' : 'Register'}
-           </button>
-        </div>
+        {/* Tab Switcher (Only shown when not in forgot password mode) */}
+        {!isForgotPass && (
+          <div className="flex border-b border-slate-800">
+             <button 
+               type="button"
+               onClick={() => { setVisitorSubTab('login'); setErrorMsg(''); }}
+               className={`flex-1 py-2 text-xs font-bold transition-all cursor-pointer ${visitorSubTab === 'login' ? 'text-blue-400 border-b-2 border-blue-500' : 'text-slate-500 hover:text-slate-300'}`}
+             >
+               {isRtl ? 'لدى حساب بالفعل' : 'I have an account'}
+             </button>
+             <button 
+               type="button"
+               onClick={() => { setVisitorSubTab('register'); setErrorMsg(''); }}
+               className={`flex-1 py-2 text-xs font-bold transition-all cursor-pointer ${visitorSubTab === 'register' ? 'text-blue-400 border-b-2 border-blue-500' : 'text-slate-500 hover:text-slate-300'}`}
+             >
+               {isRtl ? 'إنشاء حساب جديد' : 'Register'}
+             </button>
+          </div>
+        )}
 
-        <form onSubmit={handleVisitorSubmit} className="space-y-4">
-          {visitorSubTab === 'register' && (
+        {isForgotPass ? (
+          /* FORGOT PASSWORD VIA WHATSAPP OTP FORM */
+          <div className="space-y-4">
+            {otpStep === 'phone' ? (
+              <form onSubmit={handleRequestOtp} className="space-y-4">
+                <div className="space-y-1.5">
+                  <label className="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
+                    <Phone className="w-3.5 h-3.5 text-emerald-400" />
+                    <span>{isRtl ? 'رقم الهاتف المسجل / الواتساب:' : 'Registered Phone / WhatsApp:'}</span>
+                  </label>
+                  <input
+                    type="text"
+                    value={resetPhone}
+                    onChange={(e) => setResetPhone(e.target.value)}
+                    placeholder={isRtl ? 'مثال: 01012345678' : 'e.g. 01012345678'}
+                    className="w-full rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3 text-sm text-white placeholder-slate-500 focus:border-blue-500 focus:outline-none font-mono"
+                    required
+                  />
+                </div>
+
+                {errorMsg && (
+                  <div className="rounded-xl bg-rose-500/10 border border-rose-500/30 p-2.5 text-xs text-rose-300 flex items-center gap-2">
+                    <ShieldAlert className="w-4 h-4 shrink-0 text-rose-400" />
+                    <span>{errorMsg}</span>
+                  </div>
+                )}
+
+                <button
+                  type="submit"
+                  className="w-full rounded-2xl bg-emerald-600 hover:bg-emerald-500 py-3.5 text-sm font-bold text-white shadow-lg transition active:scale-98 cursor-pointer flex items-center justify-center gap-2"
+                >
+                  <Phone className="w-4 h-4" />
+                  <span>{isRtl ? 'إرسال كود OTP عبر واتساب' : 'Send WhatsApp OTP Code'}</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setIsForgotPass(false)}
+                  className="w-full text-center text-xs text-slate-400 hover:text-white pt-2 cursor-pointer"
+                >
+                  {isRtl ? '← العودة لتسجيل الدخول' : '← Back to Sign In'}
+                </button>
+              </form>
+            ) : (
+              <form onSubmit={handleVerifyOtpAndReset} className="space-y-4">
+                {otpSuccessMsg && (
+                  <div className="rounded-xl bg-emerald-500/10 border border-emerald-500/30 p-2.5 text-xs text-emerald-300 flex items-center gap-2">
+                    <CheckCircle2 className="w-4 h-4 shrink-0 text-emerald-400" />
+                    <span>{otpSuccessMsg}</span>
+                  </div>
+                )}
+
+                <div className="space-y-1.5">
+                  <label className="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
+                    <KeyRound className="w-3.5 h-3.5 text-amber-400" />
+                    <span>{isRtl ? 'رمز التحقق OTP (6 أرقام):' : '6-Digit OTP Code:'}</span>
+                  </label>
+                  <input
+                    type="text"
+                    maxLength={6}
+                    value={resetOtp}
+                    onChange={(e) => setResetOtp(e.target.value)}
+                    placeholder="123456"
+                    className="w-full rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3 text-lg font-mono font-black tracking-widest text-center text-amber-400 placeholder-slate-600 focus:border-amber-500 focus:outline-none"
+                    required
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
+                    <Lock className="w-3.5 h-3.5 text-purple-400" />
+                    <span>{isRtl ? 'كلمة السر الجديدة:' : 'New Password:'}</span>
+                  </label>
+                  <input
+                    type="password"
+                    value={resetNewPass}
+                    onChange={(e) => setResetNewPass(e.target.value)}
+                    placeholder={isRtl ? 'أدخل كلمة السر الجديدة...' : 'Enter new password...'}
+                    className="w-full rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3 text-sm text-white placeholder-slate-500 focus:border-blue-500 focus:outline-none font-mono"
+                    required
+                  />
+                </div>
+
+                {errorMsg && (
+                  <div className="rounded-xl bg-rose-500/10 border border-rose-500/30 p-2.5 text-xs text-rose-300 flex items-center gap-2">
+                    <ShieldAlert className="w-4 h-4 shrink-0 text-rose-400" />
+                    <span>{errorMsg}</span>
+                  </div>
+                )}
+
+                {visitorSuccess && (
+                  <div className="rounded-xl bg-emerald-500/10 border border-emerald-500/30 p-2.5 text-xs text-emerald-300 flex items-center justify-center gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                    <span>{isRtl ? 'تم تغيير كلمة السر بنجاح! جاري تحويلك...' : 'Password updated successfully!'}</span>
+                  </div>
+                )}
+
+                <button
+                  type="submit"
+                  className="w-full rounded-2xl bg-blue-600 hover:bg-blue-500 py-3.5 text-sm font-bold text-white shadow-lg transition active:scale-98 cursor-pointer flex items-center justify-center gap-2"
+                >
+                  <CheckCircle2 className="w-4 h-4" />
+                  <span>{isRtl ? 'تأكيد وإعادة تعيين كلمة السر' : 'Verify & Reset Password'}</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setOtpStep('phone')}
+                  className="w-full text-center text-xs text-slate-400 hover:text-white pt-1 cursor-pointer"
+                >
+                  {isRtl ? 'إعادة إرسال الكود رقم أخر' : 'Change Phone Number'}
+                </button>
+              </form>
+            )}
+          </div>
+        ) : (
+          /* STANDARD SIGN IN / REGISTER FORM */
+          <form onSubmit={handleVisitorSubmit} className="space-y-4">
+            {visitorSubTab === 'register' && (
+              <div className="space-y-1.5">
+                <label className="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
+                  <User className="w-3.5 h-3.5 text-blue-400" />
+                  <span>{isRtl ? 'اسم صاحب المركز / المدرس:' : 'Full Name:'}</span>
+                </label>
+                <input
+                  type="text"
+                  value={visitorName}
+                  onChange={(e) => setVisitorName(e.target.value)}
+                  placeholder={isRtl ? 'أدخل اسمك الكريم أو اسم المركز...' : 'Enter your name or center name...'}
+                  className="w-full rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3 text-sm text-white placeholder-slate-500 focus:border-blue-500 focus:outline-none"
+                  required={visitorSubTab === 'register'}
+                />
+              </div>
+            )}
+
             <div className="space-y-1.5">
               <label className="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
-                <User className="w-3.5 h-3.5 text-blue-400" />
-                <span>{isRtl ? 'اسم صاحب المركز / المدرس:' : 'Full Name:'}</span>
+                <Phone className="w-3.5 h-3.5 text-emerald-400" />
+                <span>{isRtl ? 'رقم الهاتف / الموبايل:' : 'Phone Number:'}</span>
               </label>
               <input
                 type="text"
-                value={visitorName}
-                onChange={(e) => setVisitorName(e.target.value)}
-                placeholder={isRtl ? 'أدخل اسمك الكريم أو اسم المركز...' : 'Enter your name or center name...'}
-                className="w-full rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3 text-sm text-white placeholder-slate-500 focus:border-blue-500 focus:outline-none"
-                required={visitorSubTab === 'register'}
-              />
-            </div>
-          )}
-
-          <div className="space-y-1.5">
-            <label className="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
-              <Phone className="w-3.5 h-3.5 text-emerald-400" />
-              <span>{isRtl ? 'رقم الهاتف / الموبايل:' : 'Phone Number:'}</span>
-            </label>
-            <input
-              type="text"
-              value={visitorPhone}
-              onChange={(e) => setVisitorPhone(e.target.value)}
-              placeholder={isRtl ? 'مثال: 01012345678' : 'e.g. 01012345678'}
-              className="w-full rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3 text-sm text-white placeholder-slate-500 focus:border-blue-500 focus:outline-none font-mono"
-              required
-            />
-          </div>
-
-          <div className="space-y-1.5">
-            <label className="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
-              <Lock className="w-3.5 h-3.5 text-purple-400" />
-              <span>{isRtl ? 'كلمة السر:' : 'Password:'}</span>
-            </label>
-            <div className="relative">
-              <input
-                type={showPass ? 'text' : 'password'}
-                value={visitorPassword}
-                onChange={(e) => setVisitorPassword(e.target.value)}
-                placeholder={isRtl ? 'أدخل كلمة السر...' : 'Enter password...'}
+                value={visitorPhone}
+                onChange={(e) => setVisitorPhone(e.target.value)}
+                placeholder={isRtl ? 'مثال: 01012345678' : 'e.g. 01012345678'}
                 className="w-full rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3 text-sm text-white placeholder-slate-500 focus:border-blue-500 focus:outline-none font-mono"
                 required
               />
-              <button
-                type="button"
-                onClick={() => setShowPass(!showPass)}
-                className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white p-1 cursor-pointer"
-              >
-                {showPass ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-              </button>
             </div>
-          </div>
 
-          {visitorSubTab === 'register' && (
             <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
-                <Mail className="w-3.5 h-3.5 text-amber-400" />
-                <span>{isRtl ? 'البريد الإلكتروني (اختياري):' : 'Email Address (Optional):'}</span>
-              </label>
-              <input
-                type="email"
-                value={visitorEmail}
-                onChange={(e) => setVisitorEmail(e.target.value)}
-                placeholder={isRtl ? 'name@example.com' : 'name@example.com'}
-                className="w-full rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3 text-sm text-white placeholder-slate-500 focus:border-blue-500 focus:outline-none font-mono"
-              />
+              <div className="flex items-center justify-between">
+                <label className="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
+                  <Lock className="w-3.5 h-3.5 text-purple-400" />
+                  <span>{isRtl ? 'كلمة السر:' : 'Password:'}</span>
+                </label>
+                {visitorSubTab === 'login' && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsForgotPass(true);
+                      setResetPhone(visitorPhone);
+                      setErrorMsg('');
+                    }}
+                    className="text-[11px] font-semibold text-blue-400 hover:text-blue-300 hover:underline cursor-pointer"
+                  >
+                    {isRtl ? 'نسيت كلمة السر؟ (كود OTP)' : 'Forgot Password?'}
+                  </button>
+                )}
+              </div>
+              <div className="relative">
+                <input
+                  type={showPass ? 'text' : 'password'}
+                  value={visitorPassword}
+                  onChange={(e) => setVisitorPassword(e.target.value)}
+                  placeholder={isRtl ? 'أدخل كلمة السر...' : 'Enter password...'}
+                  className="w-full rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3 text-sm text-white placeholder-slate-500 focus:border-blue-500 focus:outline-none font-mono"
+                  required
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPass(!showPass)}
+                  className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white p-1 cursor-pointer"
+                >
+                  {showPass ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
+              </div>
             </div>
-          )}
 
-          {errorMsg && (
-            <div className="rounded-xl bg-rose-500/10 border border-rose-500/30 p-2.5 text-xs text-rose-300 flex items-center gap-2 animate-fadeIn">
-              <ShieldAlert className="w-4 h-4 shrink-0 text-rose-400" />
-              <span>{errorMsg}</span>
-            </div>
-          )}
+            {visitorSubTab === 'register' && (
+              <div className="space-y-1.5">
+                <label className="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
+                  <Mail className="w-3.5 h-3.5 text-amber-400" />
+                  <span>{isRtl ? 'البريد الإلكتروني (اختياري):' : 'Email Address (Optional):'}</span>
+                </label>
+                <input
+                  type="email"
+                  value={visitorEmail}
+                  onChange={(e) => setVisitorEmail(e.target.value)}
+                  placeholder={isRtl ? 'name@example.com' : 'name@example.com'}
+                  className="w-full rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3 text-sm text-white placeholder-slate-500 focus:border-blue-500 focus:outline-none font-mono"
+                />
+              </div>
+            )}
 
-          {visitorSuccess && (
-            <div className="rounded-xl bg-emerald-500/10 border border-emerald-500/30 p-2.5 text-xs text-emerald-300 flex items-center justify-center gap-2 animate-fadeIn">
-              <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-              <span>{isRtl ? 'تمت العملية بنجاح! جاري تحويلك...' : 'Success! Redirecting...'}</span>
-            </div>
-          )}
+            {errorMsg && (
+              <div className="rounded-xl bg-rose-500/10 border border-rose-500/30 p-2.5 text-xs text-rose-300 flex items-center gap-2 animate-fadeIn">
+                <ShieldAlert className="w-4 h-4 shrink-0 text-rose-400" />
+                <span>{errorMsg}</span>
+              </div>
+            )}
 
-          <button
-            type="submit"
-            className="w-full rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 py-3.5 text-sm font-bold text-white shadow-lg shadow-blue-600/30 hover:from-blue-500 hover:to-indigo-500 transition active:scale-98 cursor-pointer flex items-center justify-center gap-2"
-          >
-            <Sparkles className="w-4 h-4 text-amber-300" />
-            <span>{isRtl ? (visitorSubTab === 'login' ? 'دخول لوحة العميل' : 'إنشاء الحساب والدخول') : (visitorSubTab === 'login' ? 'Sign In' : 'Register & Enter')}</span>
-          </button>
-        </form>
+            {visitorSuccess && (
+              <div className="rounded-xl bg-emerald-500/10 border border-emerald-500/30 p-2.5 text-xs text-emerald-300 flex items-center justify-center gap-2 animate-fadeIn">
+                <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                <span>{isRtl ? 'تمت العملية بنجاح! جاري تحويلك...' : 'Success! Redirecting...'}</span>
+              </div>
+            )}
+
+            <button
+              type="submit"
+              className="w-full rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 py-3.5 text-sm font-bold text-white shadow-lg shadow-blue-600/30 hover:from-blue-500 hover:to-indigo-500 transition active:scale-98 cursor-pointer flex items-center justify-center gap-2"
+            >
+              <Sparkles className="w-4 h-4 text-amber-300" />
+              <span>{isRtl ? (visitorSubTab === 'login' ? 'دخول لوحة العميل' : 'إنشاء الحساب والدخول') : (visitorSubTab === 'login' ? 'Sign In' : 'Register & Enter')}</span>
+            </button>
+          </form>
+        )}
 
         <div className="border-t border-slate-800 pt-3 text-center">
           <p className="text-[11px] text-slate-500">
