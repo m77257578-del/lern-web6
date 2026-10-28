@@ -1,0 +1,5 @@
+{
+  "summary":  "Security specification for Firestore, defining data invariants, attack payloads, and test scenarios to ensure database security.",
+  "updatedAt":  "2026-10-26T00:13:06.996231785Z",
+  "userFacing":  true
+}

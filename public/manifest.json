@@ -1,0 +1,46 @@
+{
+  "id": "/",
+  "name": "ليرن ويب | Lern Web",
+  "short_name": "LernWeb",
+  "description": "منصة تعليمية متكاملة وسوق أدوات ومحاكي مراكز تعليمية متطورة | Educational ecosystem, tool store & live center sandbox simulator",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#090d16",
+  "theme_color": "#2563eb",
+  "lang": "ar",
+  "dir": "rtl",
+  "icons": [
+    {
+      "src": "/assets/aistudio/image_69117c9b__1__7fdc7aea.jpg",
+      "sizes": "512x512",
+      "type": "image/jpeg",
+      "purpose": "any"
+    },
+    {
+      "src": "/assets/aistudio/image_69117c9b__1__7fdc7aea.jpg",
+      "sizes": "512x512",
+      "type": "image/jpeg",
+      "purpose": "maskable"
+    }
+  ],
+  "categories": ["education", "productivity", "utilities"],
+  "shortcuts": [
+    {
+      "name": "سوق المنصات | App Store",
+      "url": "/?tab=store",
+      "description": "استكشف سوق الأدوات والمنصات التعليمية"
+    },
+    {
+      "name": "محاكي الساندبوكس | Sandbox Simulator",
+      "url": "/?tab=sandbox",
+      "description": "تجربة واختبار المنصة الحية مباشرة"
+    },
+    {
+      "name": "خطط التراخيص | Licensing",
+      "url": "/?tab=billing",
+      "description": "خيارات الترخيص والتملك والشراء المباشر"
+    }
+  ]
+}

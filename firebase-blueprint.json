@@ -1,0 +1,139 @@
+{
+  "entities": {
+    "Project": {
+      "title": "Project",
+      "description": "A software project or platform available in the Lern Web marketplace.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "titleAr": { "type": "string" },
+        "titleEn": { "type": "string" },
+        "isPublished": { "type": "boolean" },
+        "category": { "type": "string", "enum": ["lms", "stem", "ai", "operations"] }
+      },
+      "required": ["id", "titleAr", "titleEn", "category"]
+    },
+    "UserOrder": {
+      "title": "UserOrder",
+      "description": "An order placed by a user for a platform.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "userId": { "type": "string" },
+        "planType": { "type": "string", "enum": ["monthly", "annual", "full"] },
+        "status": { "type": "string", "enum": ["pending", "active"] },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "userId", "planType", "status", "createdAt"]
+    },
+    "AiCustomizationDraft": {
+      "title": "AiCustomizationDraft",
+      "description": "An AI project customization request by a user.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "visitorId": { "type": "string" },
+        "status": { "type": "string", "enum": ["pending_review", "in_progress", "completed", "approved_published", "rejected"] },
+        "userPrompt": { "type": "string" },
+        "forkedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "visitorId", "status", "userPrompt", "forkedAt"]
+    },
+    "UserNotification": {
+      "title": "UserNotification",
+      "description": "A notification sent to a user about their account or requests.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "userId": { "type": "string" },
+        "title": { "type": "string" },
+        "message": { "type": "string" },
+        "type": { "type": "string", "enum": ["status_change", "system", "admin_note"] },
+        "read": { "type": "boolean" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "userId", "title", "message", "read", "createdAt"]
+    },
+    "CmsArticle": {
+      "title": "CmsArticle",
+      "description": "Educational articles, blog posts, and guides managed via the CMS.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "titleAr": { "type": "string" },
+        "titleEn": { "type": "string" },
+        "categoryAr": { "type": "string" },
+        "categoryEn": { "type": "string" },
+        "author": { "type": "string" },
+        "readTime": { "type": "string" },
+        "excerptAr": { "type": "string" },
+        "excerptEn": { "type": "string" },
+        "contentAr": { "type": "string" },
+        "contentEn": { "type": "string" },
+        "isPublished": { "type": "boolean" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "titleAr", "titleEn", "contentAr", "isPublished", "createdAt"]
+    },
+    "FaqItem": {
+      "title": "FaqItem",
+      "description": "Frequently asked questions managed via the CMS.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "questionAr": { "type": "string" },
+        "questionEn": { "type": "string" },
+        "answerAr": { "type": "string" },
+        "answerEn": { "type": "string" },
+        "categoryAr": { "type": "string" },
+        "categoryEn": { "type": "string" },
+        "isPublished": { "type": "boolean" },
+        "order": { "type": "number" }
+      },
+      "required": ["id", "questionAr", "answerAr", "isPublished"]
+    },
+    "Announcement": {
+      "title": "Announcement",
+      "description": "Top banners and ticker announcements.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "titleAr": { "type": "string" },
+        "messageAr": { "type": "string" },
+        "isActive": { "type": "boolean" },
+        "type": { "type": "string", "enum": ["info", "success", "warning", "urgent"] }
+      },
+      "required": ["id", "messageAr", "isActive"]
+    }
+  },
+  "firestore": {
+    "/projects/{projectId}": {
+      "schema": "Project",
+      "description": "Projects collection"
+    },
+    "/orders/{orderId}": {
+      "schema": "UserOrder",
+      "description": "User orders collection"
+    },
+    "/drafts/{draftId}": {
+      "schema": "AiCustomizationDraft",
+      "description": "AI customization drafts collection"
+    },
+    "/notifications/{notificationId}": {
+      "schema": "UserNotification",
+      "description": "User notifications collection"
+    },
+    "/articles/{articleId}": {
+      "schema": "CmsArticle",
+      "description": "CMS articles and blog posts collection"
+    },
+    "/faqs/{faqId}": {
+      "schema": "FaqItem",
+      "description": "CMS FAQ items collection"
+    },
+    "/announcements/{announcementId}": {
+      "schema": "Announcement",
+      "description": "CMS announcements collection"
+    }
+  }
+}

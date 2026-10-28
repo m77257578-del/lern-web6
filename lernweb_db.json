@@ -1,0 +1,383 @@
+{
+  "version": 1,
+  "lastModified": 1793035393233,
+  "projects": [
+    {
+      "id": "lms-core-hub",
+      "category": "lms",
+      "titleAr": "منظومة إدارة المراكز والسناتر التعليمية (LMS Core)",
+      "titleEn": "LMS Core Educational Center Manager",
+      "badgeAr": "النظام الأساسي المعتمد",
+      "badgeEn": "Certified Flagship LMS",
+      "taglineAr": "بوابة إلكترونية متكاملة لإدارة الحصص، مجموعات الطلاب، الجداول وسجلات الحضور والغياب للسناتر الكبرى والمدرسين.",
+      "taglineEn": "Complete cloud platform for orchestrating classroom sessions, student cohorts, schedules, and fee ledgers.",
+      "descriptionAr": "منظومة LMS Core صُممت خصيصاً لمواءمة المتطلبات التشغيلية الواقعية للمراكز التعليمية والسناتر.",
+      "descriptionEn": "Engineered specifically for tutoring centers and academies.",
+      "version": "v3.8.2",
+      "developer": "Lern Web Systems & Lab",
+      "rating": 4.9,
+      "reviewsCount": 312,
+      "accentColor": "#3b82f6",
+      "isPublished": true,
+      "featuresAr": [
+        "لوحة قيادة تفاعلية للمعلمين والإداريين تدعم تعدد الفروع والقاعات",
+        "توليد بطاقات QR ذكية لكل طالب لسرعة تسجيل الحضور عند بوابات السنتر",
+        "بوابة دفع مدمجة تدعم فودافون كاش، انستاباي، والتحويلات المباشرة"
+      ],
+      "featuresEn": [
+        "Multi-branch administrative dashboard managing physical classrooms and online hubs",
+        "Instant student smart QR badge generation for millisecond gate check-in",
+        "Integrated payment gateway supporting mobile wallets"
+      ],
+      "techStack": [
+        "Next.js 14",
+        "Tailwind CSS",
+        "Vercel Edge",
+        "SQLite / Cloud SQL",
+        "PWA Engine"
+      ],
+      "priceMonthly": "950 ج.م / $29",
+      "priceAnnual": "8,500 ج.م / $249",
+      "priceFull": "27,000 ج.م / $799",
+      "sourceCode": "// LMS Core Knowledge Base\nexport const config = {\n  version: \"3.8.2\",\n  features: [\"QR_GATE\", \"PAYMENTS\", \"ROLE_RBAC\"],\n  theme: \"blue-modern\"\n};",
+      "fileData": [],
+      "secretFiles": [
+        {
+          "name": "كود السورس كود الأصلي (Full Next.js Repo)",
+          "type": "github",
+          "urlOrNotes": "git@github.com:lernweb-private/lms-core-master.git (مستودع خاص - متاح للأدمن فقط)",
+          "updatedAt": "2026-10-24"
+        }
+      ],
+      "screenshots": [
+        {
+          "titleAr": "لوحة إدارة الفروع والطلاب",
+          "titleEn": "Branch & Student Ledger",
+          "bgGradient": "from-blue-900 to-indigo-950",
+          "mockupType": "dashboard"
+        },
+        {
+          "titleAr": "بوابة تسجيل الحضور بالباركود",
+          "titleEn": "QR Gate Check-In Terminal",
+          "bgGradient": "from-sky-900 to-slate-900",
+          "mockupType": "qr"
+        }
+      ],
+      "sandboxConfig": {
+        "centerName": "أكاديمية ليرن ويب المركزية",
+        "theme": "ocean",
+        "activeCourse": "كورس الرياضيات للثانوية العامة",
+        "hasQuiz": true,
+        "bannerText": "تنبيه: بدأ التسجيل في المجموعات الجديدة للفصل الدراسي الثاني!",
+        "tutorName": "أ. د. كريم المنشاوي"
+      }
+    },
+    {
+      "id": "ai-exam-proctor",
+      "category": "ai",
+      "titleAr": "منصة الاختبارات الذكية والمراقبة الآلية (Proctor AI)",
+      "titleEn": "Proctor AI Smart Examination Suite",
+      "badgeAr": "ذكاء اصطناعي فوري",
+      "badgeEn": "Real-time AI Shield",
+      "taglineAr": "محرك تقييم فوري يمنع تسريب الاختبارات ويكشف محاولات الغش مع تصحيح ذكي للأسئلة.",
+      "taglineEn": "High-integrity testing engine featuring active anti-cheat safeguards and semantic open-ended grading.",
+      "descriptionAr": "منظومة Proctor AI تقدم تجربة اختبارات آمنة تماماً تدعم بنوك الأسئلة المتدرجة الصعوبة.",
+      "descriptionEn": "Resilient testing ecosystem equipped with algorithmic question randomization.",
+      "version": "v2.4.0",
+      "developer": "Cognitive Learner Inc.",
+      "rating": 4.8,
+      "reviewsCount": 184,
+      "accentColor": "#8b5cf6",
+      "isPublished": true,
+      "featuresAr": [
+        "تأمين كامل للمتصفح مع منع النسخ وتصوير الشاشة وتبديل النوافذ",
+        "بنوك أسئلة ديناميكية تعيد ترتيب الأسئلة والخيارات لكل طالب",
+        "تصحيح فوري مدعوم بالذكاء الاصطناعي مع تقديم تحليل مفصل لكل إجابة"
+      ],
+      "featuresEn": [
+        "Lockdown browser environment preventing clipboard copying and tab jumps",
+        "Dynamic question pools generating unique permutations per candidate",
+        "Instant AI-assisted rubric evaluation with step-by-step diagnostic feedback"
+      ],
+      "techStack": [
+        "WebAssembly",
+        "Next.js App Router",
+        "TensorFlow.js",
+        "Tailwind CSS"
+      ],
+      "priceMonthly": "1,200 ج.م / $39",
+      "priceAnnual": "10,500 ج.م / $299",
+      "priceFull": "32,000 ج.م / $950",
+      "sourceCode": "// Proctor AI Exam Logic\nconst antiCheat = {\n  lockBrowser: true,\n  trackTabSwitch: true,\n  aiScoring: \"semantic\"\n};",
+      "fileData": [],
+      "secretFiles": [
+        {
+          "name": "نماذج الكشف الذكي بالـ AI (TensorFlow Weights)",
+          "type": "zip",
+          "urlOrNotes": "https://storage.lernweb.internal/models/proctor-ai-weights.tar.gz",
+          "updatedAt": "2026-10-22"
+        }
+      ],
+      "screenshots": [
+        {
+          "titleAr": "واجهة الامتحان المقفل والمؤقت",
+          "titleEn": "Lockdown Exam Container",
+          "bgGradient": "from-purple-950 to-slate-900",
+          "mockupType": "quiz"
+        }
+      ],
+      "sandboxConfig": {
+        "centerName": "مركز التقييم والقياس الذكي",
+        "theme": "midnight",
+        "activeCourse": "اختبار تجريبي في الفيزياء والكيمياء",
+        "hasQuiz": true,
+        "bannerText": "الاختبار التجريبي مفتوح الآن: ينتهي الوقت المتبقي تلقائياً بعد 15 دقيقة!",
+        "tutorName": "أ. د. سمير عبد الرحمن"
+      }
+    }
+  ],
+  "settings": {
+    "adminPasscode": "100100",
+    "targetWhatsAppNumber": "201024889921",
+    "centerName": "ليرن ويب | Lern Web",
+    "contactEmail": "contact@lernweb.com",
+    "socialLinks": {
+      "whatsapp": "https://wa.me/201024889921",
+      "facebook": "https://facebook.com/lernweb.official",
+      "youtube": "https://youtube.com/@lernweb",
+      "tiktok": "https://tiktok.com/@lernweb"
+    },
+    "socialAppNames": {
+      "whatsapp": "واتساب",
+      "facebook": "فيسبوك",
+      "youtube": "يوتيوب",
+      "tiktok": "تيك توك"
+    },
+    "paymentMethodLabels": {
+      "ar": "طرق الدفع والاشتراك",
+      "en": "Payment & Subscription Methods"
+    },
+    "primaryColor": "#2563eb",
+    "accentColor": "#8b5cf6",
+    "themeMode": "user",
+    "globalPrices": {
+      "monthlyAr": "950 ج.م / $29",
+      "monthlyEn": "$29 / 950 EGP",
+      "annualAr": "8,500 ج.م / $249",
+      "annualEn": "$249 / 8,500 EGP",
+      "fullAr": "27,000 ج.م / $799",
+      "fullEn": "$799 / 27,000 EGP"
+    },
+    "seoSettings": {
+      "title": "ليرن ويب | Lern Web - المنظومة التعليمية السحابية المتكاملة",
+      "description": "سوق أدوات ومحاكي مراكز تعليمية متطورة مع محرك PWA وترخيص مرن وتملك كامل للكود المصدري.",
+      "ogImage": "/og-image.png",
+      "twitterImage": "/twitter-image.png"
+    }
+  },
+  "wallets": [
+    {
+      "id": "vodafone-cash",
+      "nameAr": "فودافون كاش (Vodafone Cash)",
+      "nameEn": "Vodafone Cash (Egypt)",
+      "number": "01024889921",
+      "badge": "مصر - فودافون كاش فوري",
+      "instructionsAr": "حول المبلغ المطلوب إلى رقم فودافون كاش الموضح، ثم احتفظ بكود العملية أو لقطة الشاشة.",
+      "instructionsEn": "Transfer funds to the specified Vodafone Cash number, then submit reference ID.",
+      "color": "#e11d48",
+      "isActive": true
+    },
+    {
+      "id": "orange-cash",
+      "nameAr": "أورانج كاش (Orange Cash)",
+      "nameEn": "Orange Cash (Egypt)",
+      "number": "01224889921",
+      "badge": "محفظة أورانج كاش الفورية",
+      "instructionsAr": "قم بإدخال رقم هاتفك المحمول ليصلك كود التحقق OTP لإتمام الدفع المباشر، أو حول إلى رقم المحفظة.",
+      "instructionsEn": "Enter your registered mobile phone number to receive a one-time OTP verification code for instant checkout.",
+      "color": "#f97316",
+      "isActive": true
+    },
+    {
+      "id": "instapay",
+      "nameAr": "انستاباي الفوري (InstaPay)",
+      "nameEn": "InstaPay Direct IPN (Egypt)",
+      "number": "lernweb@instapay",
+      "badge": "تحويل بنكي لحظي 0% عمولة",
+      "instructionsAr": "افتح تطبيق انستاباي، اختر تحويل إلى عنوان دفع لحظي (IPA) واكتب lernweb@instapay ثم اضغط تأكيد.",
+      "instructionsEn": "Transfer via InstaPay IPA to lernweb@instapay without fees.",
+      "color": "#6366f1",
+      "isActive": true
+    }
+  ],
+  "plans": [
+    {
+      "id": "plan-monthly",
+      "nameAr": "الاشتراك الشهري المرن",
+      "nameEn": "Flexible Monthly Rental",
+      "priceAr": "950 ج.م / $29",
+      "priceEn": "$29 / 950 EGP",
+      "periodAr": "شهرياً",
+      "periodEn": "per month",
+      "badgeAr": "للمراكز الناشئة",
+      "badgeEn": "Starter Centers",
+      "descriptionAr": "مثالي للمدرسين والسناتر الصغيرة التي تبدأ رحلتها الرقمية.",
+      "descriptionEn": "Ideal for individual tutors and growing tutoring centers.",
+      "isPopular": false,
+      "accentColor": "#3b82f6"
+    },
+    {
+      "id": "plan-annual",
+      "nameAr": "الترخيص السنوي المتقدم",
+      "nameEn": "Advanced Annual License",
+      "priceAr": "8,500 ج.م / $249",
+      "priceEn": "$249 / 8,500 EGP",
+      "periodAr": "سنوياً",
+      "periodEn": "per year",
+      "badgeAr": "الأكثر طلباً",
+      "badgeEn": "Most Popular",
+      "descriptionAr": "يشمل اسم نطاق خاص بالمركز، دعم فني فوري، وسعة غير محدودة.",
+      "descriptionEn": "Includes Custom Domain, VIP priority SLA, and unlimited quotas.",
+      "isPopular": true,
+      "accentColor": "#3b82f6"
+    },
+    {
+      "id": "plan-full",
+      "nameAr": "التملك الكامل للكود المصدر",
+      "nameEn": "Full Outright Source Buyout",
+      "priceAr": "27,000 ج.م / $799",
+      "priceEn": "$799 / 27,000 EGP",
+      "periodAr": "دفعة واحدة",
+      "periodEn": "one-time payment",
+      "badgeAr": "ملكية مدى الحياة",
+      "badgeEn": "White-Label Ownership",
+      "descriptionAr": "احصل على كامل الكود المصدري بدون أي اشتراكات شهرية.",
+      "descriptionEn": "Receive complete uncompressed source code. Zero recurring fees.",
+      "isPopular": false,
+      "accentColor": "#8b5cf6"
+    }
+  ],
+  "ai_drafts": [],
+  "users": [],
+  "media_resources": [],
+  "user_orders": [],
+  "reviews": [],
+  "activity_logs": [
+    {
+      "id": "log-1",
+      "actionType": "settings_updated",
+      "titleAr": "تحديث تفضيلات مظهر المنصة",
+      "titleEn": "Site-wide Theme Preferences Updated",
+      "detailsAr": "تم ضبط وضع الثيم الشامل وتأكيد حفظ إعدادات النظام.",
+      "detailsEn": "Configured global theme preference and saved settings.",
+      "timestamp": "2026-10-26T16:58:13.233Z"
+    }
+  ],
+  "chat_messages": [],
+  "support_tickets": [],
+  "notifications": [],
+  "articles": [
+    {
+      "id": "article-pwa-revolution",
+      "titleAr": "دليل التحول الرقمي للمراكز التعليمية: كيف توفر تقنية PWA بديلاً فائقاً للتطبيقات التقليدية؟",
+      "titleEn": "Digital Transformation for Academies: How PWAs Outperform Traditional Apps",
+      "categoryAr": "تقنية وتطوير",
+      "categoryEn": "Tech & Dev",
+      "author": "م. أحمد الشناوي",
+      "readTime": "4 دقائق",
+      "excerptAr": "تعرف على كيفية عمل تطبيقات الويب التقدمية (PWA) دون الحاجة لمتاجر التطبيقات ومع دعم كامل للعمل بدون إنترنت.",
+      "excerptEn": "Discover how Progressive Web Apps eliminate app store friction while providing 100% offline functionality.",
+      "contentAr": "تُعد تطبيقات الويب التقدمية (Progressive Web Apps) النقلة النوعية الأكبر في بناء المنظومات التعليمية السحابية. من خلال ميزات التخزين المؤقت المتقدمة عبر Service Workers، يستطيع الطلاب وأولياء الأمور تصفح المحاضرات والجداول وتسجيل الحضور بالـ QR code حتى في حال انقطاع اتصال الإنترنت تماماً داخل قاعات السنتر.",
+      "contentEn": "Progressive Web Apps represent a major leap forward for cloud educational systems. Utilizing Service Workers for intelligent caching, students can access lecture recordings and attendance passes even when connectivity is offline.",
+      "imageUrl": "/homepage_view.png",
+      "tags": [
+        "PWA",
+        "التعليم الذكي",
+        "التطوير السحابي"
+      ],
+      "isPublished": true,
+      "createdAt": "2026-10-26T17:23:13.234Z"
+    },
+    {
+      "id": "article-ai-proctoring",
+      "titleAr": "مستقبل الاختبارات الإلكترونية: كيف تمنع خوارزميات المراقبة الذكية تسريب الامتحانات؟",
+      "titleEn": "The Future of E-Exams: Algorithmic Anti-Cheat Integrity Systems",
+      "categoryAr": "ذكاء اصطناعي",
+      "categoryEn": "Artificial Intelligence",
+      "author": "د. ياسمين فؤاد",
+      "readTime": "6 دقائق",
+      "excerptAr": "استعراض لأحدث تقنيات تأمين بيئة الاختبارات، إغلاق المتصفح الآمن، وتوليد أسئلة فريدة لكل طالب.",
+      "excerptEn": "Deep dive into browser lockdown systems, randomized question permutation, and instant AI assessment.",
+      "contentAr": "أصبحت نزاهة الامتحانات التحدي الأكبر للمراكز والسناتر التعليمية. توفر منظومة المراقبة الذكية تقنيات متطورة مثل قفل المتصفح التام (Lockdown Browser) وكشف محاولات تبديل النوافذ والتقاط الشاشات، فضلاً عن التصحيح الدلالي للأسئلة المقالية في أجزاء من الثانية.",
+      "contentEn": "Assessment integrity is paramount for high-stakes test prep. Modern proctoring suites employ automated lockdown sandboxes preventing screen capture and multi-tab switching, with sub-second semantic answer evaluation.",
+      "imageUrl": "/public/admin_dashboard_view.png",
+      "tags": [
+        "AI",
+        "الاختبارات",
+        "الحماية"
+      ],
+      "isPublished": true,
+      "createdAt": "2026-10-26T17:23:13.234Z"
+    }
+  ],
+  "faqs": [
+    {
+      "id": "faq-1",
+      "categoryAr": "عن المنصة",
+      "categoryEn": "About Platform",
+      "questionAr": "ما هي منصة ليرن ويب (Lern Web) وكيف تفيد المركز التعليمي؟",
+      "questionEn": "What is Lern Web and how does it empower educational centers?",
+      "answerAr": "منظومة ليرن ويب هي بيئة سحابية متكاملة تتيح للمدرسين والمراكز والسناتر التعليمية إطلاق منصاتهم الخاصة بهوية بصرية مستقلة، وتتضمن بوابات إدارة الطلاب، نظام الحضور الذكي بالـ QR، بنوك الأسئلة والاختبارات التفاعلية، وبيئات البرمجة السحابية مع تطبيق PWA يعمل بدون إنترنت.",
+      "answerEn": "Lern Web is a unified cloud ecosystem enabling educators and academies to deploy custom branded portals featuring student hubs, sub-200ms QR check-in gates, AI-proctored exam suites, and PWA offline support.",
+      "order": 1,
+      "isPublished": true
+    },
+    {
+      "id": "faq-2",
+      "categoryAr": "نظام الاشتراكات",
+      "categoryEn": "Pricing Models",
+      "questionAr": "ما هي باقات الاشتراك والترخيص المتاحة (شهرى، سنوى، تمليك)؟",
+      "questionEn": "What pricing and licensing tiers are available?",
+      "answerAr": "تقدم المنصة 3 باقات مرنة تناسب جميع الاحتياجات:\n1. الإيجار الشهري (Monthly): اشتراك مرن وتكلفة منخفضة لتجربة التشغيل.\n2. السنوي المعتمد (Annual): الباقة الأكثر شيوعاً وتشمل استضافة Edge فائقة السرعة، الدعم الفني المباشر، والتحديثات الدورية.\n3. التملك الكامل (Full Buyout): التسليم الكامل للكود المصدري الأصلي غير المضغوط مع ترخيص استخدام دائم دون أي اشتراكات مستقبلياً.",
+      "answerEn": "We offer 3 flexible tiers:\n1. Monthly Rental: Low commitment operational tier.\n2. Annual Suite: High-performance Vercel Edge hosting with SLA updates.\n3. Full Source Code Buyout: Perpetual license with uncompressed Next.js source repository ownership.",
+      "order": 2,
+      "isPublished": true
+    },
+    {
+      "id": "faq-3",
+      "categoryAr": "تطبيق PWA",
+      "categoryEn": "PWA & Offline",
+      "questionAr": "كيف أقوم بتثبيت واستخدام تطبيق الـ PWA على الهاتف والحاسوب؟",
+      "questionEn": "How do I install and run the Progressive Web App (PWA)?",
+      "answerAr": "يمكنك تثبيت المنصة بنقرة واحدة بالضغط على زر \"تثبيت التطبيق الآن\" في الشريط العلوي، أو خيار \"Add to Home Screen\" من قائمة المتصفح. يتميز التطبيق بالعمل كأنه تطبيق محلي سريع جداً، مع التخزين المحلي المؤقت (Service Worker) للعمل حتى عند ضعف أو انقطاع الإنترنت.",
+      "answerEn": "Click the \"Install App\" prompt in the header or \"Add to Home Screen\" in your browser. The PWA behaves like a native mobile app with Service Worker caching for seamless offline usage.",
+      "order": 3,
+      "isPublished": true
+    },
+    {
+      "id": "faq-4",
+      "categoryAr": "التخصيص بالذكاء الاصطناعي",
+      "categoryEn": "AI Studio",
+      "questionAr": "كيف أستخدم استوديو التخصيص بالذكاء الاصطناعي والمحاكي التفاعلي؟",
+      "questionEn": "How do I use the AI Customizer Studio & Live Sandbox Simulator?",
+      "answerAr": "في تبويب \"المحاكي والذكاء الاصطناعي\"، يمكنك كتابة أوامرك باللغة الطبيعية وسيقوم المساعد الذكي بتوليد التعديلات فورياً في المحاكي أمامك مع إمكانية إرسال المسودة للأدمن للاعتماد ومتابعة حالتها من لوحة العميل.",
+      "answerEn": "In the Sandbox tab, enter natural language prompts to instantaneously re-render the simulator. Submit your staged draft to the Admin and track approval inside your Client Dashboard.",
+      "order": 4,
+      "isPublished": true
+    }
+  ],
+  "announcements": [
+    {
+      "id": "ann-1",
+      "titleAr": "تحديث النسخة v3.8.5",
+      "titleEn": "Release v3.8.5 Live",
+      "messageAr": "🚀 تم إطلاق محرك CMS المتكامل ولوحة التحكم المخصصة لإدارة المحتوى والمقالات والمشاريع مباشرة!",
+      "messageEn": "🚀 Full-featured CMS and Dedicated Control Panel now live for seamless dynamic content management!",
+      "badgeAr": "جديد المنصة",
+      "badgeEn": "New Update",
+      "type": "success",
+      "isActive": true,
+      "targetUrl": "#dashboard"
+    }
+  ]
+}

@@ -1,0 +1,1055 @@
+03:20:13.060 Running build in Washington, D.C., USA (East) – iad1
+03:20:13.062 Build machine configuration: 2 cores, 8 GB
+03:20:13.140 Cloning github.com/m77257578-del/lern-lab (Branch: main, Commit: 8829956)
+03:20:13.142 Skipping build cache, deployment was triggered without cache.
+03:20:14.094 Cloning completed: 954.000ms
+03:20:14.835 Running "vercel build"
+03:20:14.859 Vercel CLI 65.1.0
+03:20:15.965 Running "install" command: `npm install --legacy-peer-deps`...
+03:20:17.068 npm warn Unknown env config "cache-dir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+03:20:40.356 
+03:20:40.357 > react-example@0.0.0 postinstall
+03:20:40.357 > npm install --legacy-peer-deps
+03:20:40.357 
+03:20:41.021 npm warn Unknown env config "cache-dir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+03:20:41.803 
+03:20:41.804 > react-example@0.0.0 postinstall
+03:20:41.804 > npm install --legacy-peer-deps
+03:20:41.804 
+03:20:42.465 npm warn Unknown env config "cache-dir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+03:20:43.085 
+03:20:43.085 > react-example@0.0.0 postinstall
+03:20:43.085 > npm install --legacy-peer-deps
+03:20:43.086 
+03:20:43.942 npm warn Unknown env config "cache-dir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+03:20:44.590 
+03:20:44.590 > react-example@0.0.0 postinstall
+03:20:44.590 > npm install --legacy-peer-deps
+03:20:44.590 
+03:20:45.285 npm warn Unknown env config "cache-dir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+03:20:46.002 
+03:20:46.003 > react-example@0.0.0 postinstall
+03:20:46.003 > npm install --legacy-peer-deps
+03:20:46.003 
+03:20:46.711 npm warn Unknown env config "cache-dir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+03:20:47.424 
+03:20:47.426 > react-example@0.0.0 postinstall
+03:20:47.426 > npm install --legacy-peer-deps
+03:20:47.426 
+03:20:48.072 npm warn Unknown env config "cache-dir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+03:20:48.790 
+03:20:48.790 > react-example@0.0.0 postinstall
+03:20:48.790 > npm install --legacy-peer-deps
+03:20:48.790 
+03:20:49.473 npm warn Unknown env config "cache-dir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+03:20:50.212 
+03:20:50.212 > react-example@0.0.0 postinstall
+03:20:50.213 > npm install --legacy-peer-deps
+03:20:50.213 
+03:20:50.846 npm warn Unknown env config "cache-dir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+03:20:51.413 
+03:20:51.413 > react-example@0.0.0 postinstall
+03:20:51.413 > npm install --legacy-peer-deps
+03:20:51.413 
+03:20:52.073 npm warn Unknown env config "cache-dir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+03:20:52.663 
+03:20:52.663 > react-example@0.0.0 postinstall
+03:20:52.663 > npm install --legacy-peer-deps
+03:20:52.663 
+03:20:53.263 npm warn Unknown env config "cache-dir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+03:20:54.020 
+03:20:54.020 > react-example@0.0.0 postinstall
+03:20:54.020 > npm install --legacy-peer-deps
+03:20:54.020 
+03:20:54.943 npm warn Unknown env config "cache-dir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+03:20:55.639 
+03:20:55.640 > react-example@0.0.0 postinstall
+03:20:55.640 > npm install --legacy-peer-deps
+03:20:55.640 
+03:20:56.266 npm warn Unknown env config "cache-dir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+03:20:56.873 
+03:20:56.873 > react-example@0.0.0 postinstall
+03:20:56.873 > npm install --legacy-peer-deps
+03:20:56.873 
+03:20:57.546 npm warn Unknown env config "cache-dir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+03:20:58.143 
+03:20:58.143 > react-example@0.0.0 postinstall
+03:20:58.143 > npm install --legacy-peer-deps
+03:20:58.143 
+03:20:58.807 npm warn Unknown env config "cache-dir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+03:20:59.531 
+03:20:59.531 > react-example@0.0.0 postinstall
+03:20:59.532 > npm install --legacy-peer-deps
+03:20:59.532 
+03:21:00.395 npm warn Unknown env config "cache-dir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+03:21:01.121 
+03:21:01.121 > react-example@0.0.0 postinstall
+03:21:01.122 > npm install --legacy-peer-deps
+03:21:01.122 
+03:21:01.814 npm warn Unknown env config "cache-dir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+03:21:02.443 
+03:21:02.443 > react-example@0.0.0 postinstall
+03:21:02.443 > npm install --legacy-peer-deps
+03:21:02.443 
+03:21:03.231 npm warn Unknown env config "cache-dir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+03:21:03.901 
+03:21:03.901 > react-example@0.0.0 postinstall
+03:21:03.901 > npm install --legacy-peer-deps
+03:21:03.901 
+03:21:04.625 npm warn Unknown env config "cache-dir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+03:21:05.296 
+03:21:05.296 > react-example@0.0.0 postinstall
+03:21:05.297 > npm install --legacy-peer-deps
+03:21:05.297 
+03:21:06.039 npm warn Unknown env config "cache-dir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+03:21:06.812 
+03:21:06.818 > react-example@0.0.0 postinstall
+03:21:06.819 > npm install --legacy-peer-deps
+03:21:06.821 
+03:21:07.683 npm warn Unknown env config "cache-dir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+03:21:08.406 
+03:21:08.406 > react-example@0.0.0 postinstall
+03:21:08.406 > npm install --legacy-peer-deps
+03:21:08.407 
+03:21:09.545 npm warn Unknown env config "cache-dir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+03:21:10.276 
+03:21:10.277 > react-example@0.0.0 postinstall
+03:21:10.277 > npm install --legacy-peer-deps
+03:21:10.277 
+03:21:11.105 npm warn Unknown env config "cache-dir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+03:21:11.769 
+03:21:11.770 > react-example@0.0.0 postinstall
+03:21:11.770 > npm install --legacy-peer-deps
+03:21:11.770 
+03:21:12.597 npm warn Unknown env config "cache-dir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+03:21:13.293 
+03:21:13.293 > react-example@0.0.0 postinstall
+03:21:13.293 > npm install --legacy-peer-deps
+03:21:13.293 
+03:21:14.336 npm warn Unknown env config "cache-dir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+03:21:14.858 
+03:21:14.858 > react-example@0.0.0 postinstall
+03:21:14.858 > npm install --legacy-peer-deps
+03:21:14.858 
+03:21:15.596 npm warn Unknown env config "cache-dir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+03:21:16.596 
+03:21:16.597 > react-example@0.0.0 postinstall
+03:21:16.597 > npm install --legacy-peer-deps
+03:21:16.597 
+03:21:17.497 npm warn Unknown env config "cache-dir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+03:21:18.201 
+03:21:18.201 > react-example@0.0.0 postinstall
+03:21:18.201 > npm install --legacy-peer-deps
+03:21:18.201 
+03:21:19.345 npm warn Unknown env config "cache-dir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+03:21:20.225 
+03:21:20.225 > react-example@0.0.0 postinstall
+03:21:20.225 > npm install --legacy-peer-deps
+03:21:20.225 
+03:21:20.917 npm warn Unknown env config "cache-dir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+03:21:21.673 
+03:21:21.673 > react-example@0.0.0 postinstall
+03:21:21.673 > npm install --legacy-peer-deps
+03:21:21.673 
+03:21:22.405 npm warn Unknown env config "cache-dir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+03:21:23.103 
+03:21:23.103 > react-example@0.0.0 postinstall
+03:21:23.103 > npm install --legacy-peer-deps
+03:21:23.103 
+03:21:23.989 npm warn Unknown env config "cache-dir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+03:21:24.778 
+03:21:24.778 > react-example@0.0.0 postinstall
+03:21:24.778 > npm install --legacy-peer-deps
+03:21:24.778 
+03:21:25.462 npm warn Unknown env config "cache-dir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+03:21:26.165 
+03:21:26.165 > react-example@0.0.0 postinstall
+03:21:26.165 > npm install --legacy-peer-deps
+03:21:26.166 
+03:21:26.910 npm warn Unknown env config "cache-dir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+03:21:27.704 
+03:21:27.704 > react-example@0.0.0 postinstall
+03:21:27.705 > npm install --legacy-peer-deps
+03:21:27.705 
+03:21:28.473 npm warn Unknown env config "cache-dir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+03:21:29.123 
+03:21:29.124 > react-example@0.0.0 postinstall
+03:21:29.124 > npm install --legacy-peer-deps
+03:21:29.124 
+03:21:29.957 npm warn Unknown env config "cache-dir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+03:21:30.717 
+03:21:30.717 > react-example@0.0.0 postinstall
+03:21:30.718 > npm install --legacy-peer-deps
+03:21:30.718 
+03:21:31.502 npm warn Unknown env config "cache-dir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+03:21:32.601 
+03:21:32.601 > react-example@0.0.0 postinstall
+03:21:32.601 > npm install --legacy-peer-deps
+03:21:32.601 
+03:21:33.324 npm warn Unknown env config "cache-dir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+03:21:34.013 
+03:21:34.013 > react-example@0.0.0 postinstall
+03:21:34.013 > npm install --legacy-peer-deps
+03:21:34.013 
+03:21:34.706 npm warn Unknown env config "cache-dir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+03:21:35.402 
+03:21:35.402 > react-example@0.0.0 postinstall
+03:21:35.402 > npm install --legacy-peer-deps
+03:21:35.402 
+03:21:36.192 npm warn Unknown env config "cache-dir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+03:21:36.918 
+03:21:36.918 > react-example@0.0.0 postinstall
+03:21:36.918 > npm install --legacy-peer-deps
+03:21:36.918 
+03:21:37.641 npm warn Unknown env config "cache-dir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+03:21:38.241 
+03:21:38.241 > react-example@0.0.0 postinstall
+03:21:38.241 > npm install --legacy-peer-deps
+03:21:38.241 
+03:21:38.951 npm warn Unknown env config "cache-dir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+03:21:39.674 
+03:21:39.675 > react-example@0.0.0 postinstall
+03:21:39.675 > npm install --legacy-peer-deps
+03:21:39.675 
+03:21:40.413 npm warn Unknown env config "cache-dir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+03:21:41.119 
+03:21:41.119 > react-example@0.0.0 postinstall
+03:21:41.120 > npm install --legacy-peer-deps
+03:21:41.120 
+03:21:41.825 npm warn Unknown env config "cache-dir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+03:21:42.464 
+03:21:42.464 > react-example@0.0.0 postinstall
+03:21:42.464 > npm install --legacy-peer-deps
+03:21:42.464 
+03:21:43.223 npm warn Unknown env config "cache-dir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+03:21:43.883 
+03:21:43.883 > react-example@0.0.0 postinstall
+03:21:43.883 > npm install --legacy-peer-deps
+03:21:43.883 
+03:21:44.725 npm warn Unknown env config "cache-dir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+03:21:45.408 
+03:21:45.409 > react-example@0.0.0 postinstall
+03:21:45.409 > npm install --legacy-peer-deps
+03:21:45.409 
+03:21:46.193 npm warn Unknown env config "cache-dir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+03:21:46.808 
+03:21:46.808 > react-example@0.0.0 postinstall
+03:21:46.808 > npm install --legacy-peer-deps
+03:21:46.808 
+03:21:47.584 npm warn Unknown env config "cache-dir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+03:21:48.205 
+03:21:48.205 > react-example@0.0.0 postinstall
+03:21:48.205 > npm install --legacy-peer-deps
+03:21:48.205 
+03:21:48.919 npm warn Unknown env config "cache-dir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+03:21:49.784 
+03:21:49.785 > react-example@0.0.0 postinstall
+03:21:49.785 > npm install --legacy-peer-deps
+03:21:49.788 
+03:21:50.643 npm warn Unknown env config "cache-dir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+03:21:51.350 
+03:21:51.350 > react-example@0.0.0 postinstall
+03:21:51.351 > npm install --legacy-peer-deps
+03:21:51.351 
+03:21:52.403 npm warn Unknown env config "cache-dir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+03:21:53.544 
+03:21:53.544 > react-example@0.0.0 postinstall
+03:21:53.544 > npm install --legacy-peer-deps
+03:21:53.544 
+03:21:54.565 npm warn Unknown env config "cache-dir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+03:21:55.373 
+03:21:55.373 > react-example@0.0.0 postinstall
+03:21:55.373 > npm install --legacy-peer-deps
+03:21:55.374 
+03:21:56.359 npm warn Unknown env config "cache-dir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+03:21:57.021 
+03:21:57.021 > react-example@0.0.0 postinstall
+03:21:57.021 > npm install --legacy-peer-deps
+03:21:57.021 
+03:21:57.771 npm warn Unknown env config "cache-dir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+03:21:58.544 
+03:21:58.544 > react-example@0.0.0 postinstall
+03:21:58.544 > npm install --legacy-peer-deps
+03:21:58.544 
+03:21:59.403 npm warn Unknown env config "cache-dir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+03:22:00.309 
+03:22:00.310 > react-example@0.0.0 postinstall
+03:22:00.310 > npm install --legacy-peer-deps
+03:22:00.310 
+03:22:01.566 npm warn Unknown env config "cache-dir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+03:22:02.431 
+03:22:02.433 > react-example@0.0.0 postinstall
+03:22:02.433 > npm install --legacy-peer-deps
+03:22:02.433 
+03:22:03.358 npm warn Unknown env config "cache-dir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+03:22:04.063 
+03:22:04.063 > react-example@0.0.0 postinstall
+03:22:04.063 > npm install --legacy-peer-deps
+03:22:04.063 
+03:22:05.153 npm warn Unknown env config "cache-dir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+03:22:05.781 
+03:22:05.781 > react-example@0.0.0 postinstall
+03:22:05.781 > npm install --legacy-peer-deps
+03:22:05.781 
+03:22:06.555 npm warn Unknown env config "cache-dir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+03:22:07.371 
+03:22:07.371 > react-example@0.0.0 postinstall
+03:22:07.371 > npm install --legacy-peer-deps
+03:22:07.371 
+03:22:08.343 npm warn Unknown env config "cache-dir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+03:22:09.266 
+03:22:09.266 > react-example@0.0.0 postinstall
+03:22:09.266 > npm install --legacy-peer-deps
+03:22:09.266 
+03:22:10.017 npm warn Unknown env config "cache-dir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+03:22:10.697 
+03:22:10.697 > react-example@0.0.0 postinstall
+03:22:10.697 > npm install --legacy-peer-deps
+03:22:10.697 
+03:22:11.468 npm warn Unknown env config "cache-dir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+03:22:12.255 
+03:22:12.266 > react-example@0.0.0 postinstall
+03:22:12.266 > npm install --legacy-peer-deps
+03:22:12.266 
+03:22:12.998 npm warn Unknown env config "cache-dir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+03:22:13.640 
+03:22:13.640 > react-example@0.0.0 postinstall
+03:22:13.640 > npm install --legacy-peer-deps
+03:22:13.640 
+03:22:14.285 npm warn Unknown env config "cache-dir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+03:22:15.011 
+03:22:15.011 > react-example@0.0.0 postinstall
+03:22:15.011 > npm install --legacy-peer-deps
+03:22:15.011 
+03:22:15.680 npm warn Unknown env config "cache-dir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+03:22:16.513 
+03:22:16.513 > react-example@0.0.0 postinstall
+03:22:16.513 > npm install --legacy-peer-deps
+03:22:16.513 
+03:22:17.171 npm warn Unknown env config "cache-dir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+03:22:17.832 
+03:22:17.845 > react-example@0.0.0 postinstall
+03:22:17.845 > npm install --legacy-peer-deps
+03:22:17.845 
+03:22:18.589 npm warn Unknown env config "cache-dir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+03:22:19.280 
+03:22:19.280 > react-example@0.0.0 postinstall
+03:22:19.280 > npm install --legacy-peer-deps
+03:22:19.280 
+03:22:20.015 npm warn Unknown env config "cache-dir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+03:22:20.720 
+03:22:20.720 > react-example@0.0.0 postinstall
+03:22:20.720 > npm install --legacy-peer-deps
+03:22:20.720 
+03:22:21.420 npm warn Unknown env config "cache-dir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+03:22:22.129 
+03:22:22.130 > react-example@0.0.0 postinstall
+03:22:22.130 > npm install --legacy-peer-deps
+03:22:22.130 
+03:22:22.875 npm warn Unknown env config "cache-dir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+03:22:23.405 
+03:22:23.406 > react-example@0.0.0 postinstall
+03:22:23.407 > npm install --legacy-peer-deps
+03:22:23.407 
+03:22:24.172 npm warn Unknown env config "cache-dir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+03:22:24.883 
+03:22:24.883 > react-example@0.0.0 postinstall
+03:22:24.883 > npm install --legacy-peer-deps
+03:22:24.883 
+03:22:25.553 npm warn Unknown env config "cache-dir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+03:22:26.300 
+03:22:26.300 > react-example@0.0.0 postinstall
+03:22:26.301 > npm install --legacy-peer-deps
+03:22:26.301 
+03:22:26.904 npm warn Unknown env config "cache-dir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+03:22:27.476 
+03:22:27.478 > react-example@0.0.0 postinstall
+03:22:27.479 > npm install --legacy-peer-deps
+03:22:27.479 
+03:22:28.286 npm warn Unknown env config "cache-dir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+03:22:28.943 
+03:22:28.944 > react-example@0.0.0 postinstall
+03:22:28.944 > npm install --legacy-peer-deps
+03:22:28.944 
+03:22:29.759 npm warn Unknown env config "cache-dir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+03:22:30.904 
+03:22:30.904 > react-example@0.0.0 postinstall
+03:22:30.904 > npm install --legacy-peer-deps
+03:22:30.904 
+03:22:31.749 npm warn Unknown env config "cache-dir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+03:22:32.475 
+03:22:32.475 > react-example@0.0.0 postinstall
+03:22:32.475 > npm install --legacy-peer-deps
+03:22:32.475 
+03:22:33.413 npm warn Unknown env config "cache-dir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+03:22:34.098 
+03:22:34.098 > react-example@0.0.0 postinstall
+03:22:34.098 > npm install --legacy-peer-deps
+03:22:34.098 
+03:22:35.132 npm warn Unknown env config "cache-dir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+03:22:35.954 
+03:22:35.954 > react-example@0.0.0 postinstall
+03:22:35.955 > npm install --legacy-peer-deps
+03:22:35.955 
+03:22:36.725 npm warn Unknown env config "cache-dir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+03:22:37.495 
+03:22:37.495 > react-example@0.0.0 postinstall
+03:22:37.496 > npm install --legacy-peer-deps
+03:22:37.496 
+03:22:38.197 npm warn Unknown env config "cache-dir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+03:22:38.804 
+03:22:38.804 > react-example@0.0.0 postinstall
+03:22:38.804 > npm install --legacy-peer-deps
+03:22:38.804 
+03:22:39.521 npm warn Unknown env config "cache-dir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+03:22:40.224 
+03:22:40.225 > react-example@0.0.0 postinstall
+03:22:40.225 > npm install --legacy-peer-deps
+03:22:40.225 
+03:22:41.026 npm warn Unknown env config "cache-dir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+03:22:41.793 
+03:22:41.794 > react-example@0.0.0 postinstall
+03:22:41.794 > npm install --legacy-peer-deps
+03:22:41.794 
+03:22:42.417 npm warn Unknown env config "cache-dir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+03:22:43.091 
+03:22:43.092 > react-example@0.0.0 postinstall
+03:22:43.092 > npm install --legacy-peer-deps
+03:22:43.092 
+03:22:43.725 npm warn Unknown env config "cache-dir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+03:22:44.404 
+03:22:44.404 > react-example@0.0.0 postinstall
+03:22:44.404 > npm install --legacy-peer-deps
+03:22:44.404 
+03:22:45.057 npm warn Unknown env config "cache-dir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+03:22:45.876 
+03:22:45.876 > react-example@0.0.0 postinstall
+03:22:45.876 > npm install --legacy-peer-deps
+03:22:45.876 
+03:22:46.773 npm warn Unknown env config "cache-dir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+03:22:47.726 
+03:22:47.727 > react-example@0.0.0 postinstall
+03:22:47.727 > npm install --legacy-peer-deps
+03:22:47.727 
+03:22:48.705 npm warn Unknown env config "cache-dir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+03:22:49.790 
+03:22:49.791 > react-example@0.0.0 postinstall
+03:22:49.791 > npm install --legacy-peer-deps
+03:22:49.791 
+03:22:50.684 npm warn Unknown env config "cache-dir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+03:22:51.872 
+03:22:51.872 > react-example@0.0.0 postinstall
+03:22:51.872 > npm install --legacy-peer-deps
+03:22:51.872 
+03:22:52.790 npm warn Unknown env config "cache-dir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+03:22:53.524 
+03:22:53.525 > react-example@0.0.0 postinstall
+03:22:53.525 > npm install --legacy-peer-deps
+03:22:53.525 
+03:22:54.356 npm warn Unknown env config "cache-dir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+03:22:55.044 
+03:22:55.044 > react-example@0.0.0 postinstall
+03:22:55.044 > npm install --legacy-peer-deps
+03:22:55.044 
+03:22:56.104 npm warn Unknown env config "cache-dir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+03:22:57.043 
+03:22:57.044 > react-example@0.0.0 postinstall
+03:22:57.044 > npm install --legacy-peer-deps
+03:22:57.044 
+03:22:57.836 npm warn Unknown env config "cache-dir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+03:22:58.619 
+03:22:58.620 > react-example@0.0.0 postinstall
+03:22:58.620 > npm install --legacy-peer-deps
+03:22:58.620 
+03:22:59.394 npm warn Unknown env config "cache-dir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+03:23:00.332 
+03:23:00.332 > react-example@0.0.0 postinstall
+03:23:00.333 > npm install --legacy-peer-deps
+03:23:00.334 
+03:23:01.012 npm warn Unknown env config "cache-dir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+03:23:01.787 
+03:23:01.788 > react-example@0.0.0 postinstall
+03:23:01.788 > npm install --legacy-peer-deps
+03:23:01.788 
+03:23:02.825 npm warn Unknown env config "cache-dir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+03:23:03.539 
+03:23:03.539 > react-example@0.0.0 postinstall
+03:23:03.540 > npm install --legacy-peer-deps
+03:23:03.540 
+03:23:04.365 npm warn Unknown env config "cache-dir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+03:23:04.951 
+03:23:04.952 > react-example@0.0.0 postinstall
+03:23:04.952 > npm install --legacy-peer-deps
+03:23:04.952 
+03:23:05.683 npm warn Unknown env config "cache-dir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+03:23:06.859 
+03:23:06.860 > react-example@0.0.0 postinstall
+03:23:06.860 > npm install --legacy-peer-deps
+03:23:06.860 
+03:23:07.629 npm warn Unknown env config "cache-dir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+03:23:08.284 
+03:23:08.284 > react-example@0.0.0 postinstall
+03:23:08.284 > npm install --legacy-peer-deps
+03:23:08.284 
+03:23:09.137 npm warn Unknown env config "cache-dir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+03:23:09.954 
+03:23:09.954 > react-example@0.0.0 postinstall
+03:23:09.955 > npm install --legacy-peer-deps
+03:23:09.955 
+03:23:10.683 npm warn Unknown env config "cache-dir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+03:23:11.441 
+03:23:11.441 > react-example@0.0.0 postinstall
+03:23:11.441 > npm install --legacy-peer-deps
+03:23:11.441 
+03:23:12.194 npm warn Unknown env config "cache-dir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+03:23:12.912 
+03:23:12.913 > react-example@0.0.0 postinstall
+03:23:12.913 > npm install --legacy-peer-deps
+03:23:12.913 
+03:23:13.691 npm warn Unknown env config "cache-dir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+03:23:14.414 
+03:23:14.414 > react-example@0.0.0 postinstall
+03:23:14.414 > npm install --legacy-peer-deps
+03:23:14.414 
+03:23:15.286 npm warn Unknown env config "cache-dir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+03:23:15.971 
+03:23:15.971 > react-example@0.0.0 postinstall
+03:23:15.971 > npm install --legacy-peer-deps
+03:23:15.977 
+03:23:16.717 npm warn Unknown env config "cache-dir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+03:23:17.453 
+03:23:17.453 > react-example@0.0.0 postinstall
+03:23:17.453 > npm install --legacy-peer-deps
+03:23:17.453 
+03:23:18.384 npm warn Unknown env config "cache-dir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+03:23:19.099 
+03:23:19.099 > react-example@0.0.0 postinstall
+03:23:19.099 > npm install --legacy-peer-deps
+03:23:19.099 
+03:23:19.937 npm warn Unknown env config "cache-dir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+03:23:20.685 
+03:23:20.685 > react-example@0.0.0 postinstall
+03:23:20.685 > npm install --legacy-peer-deps
+03:23:20.685 
+03:23:21.884 npm warn Unknown env config "cache-dir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+03:23:22.634 
+03:23:22.635 > react-example@0.0.0 postinstall
+03:23:22.635 > npm install --legacy-peer-deps
+03:23:22.635 
+03:23:23.421 npm warn Unknown env config "cache-dir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+03:23:24.301 
+03:23:24.301 > react-example@0.0.0 postinstall
+03:23:24.301 > npm install --legacy-peer-deps
+03:23:24.301 
+03:23:25.114 npm warn Unknown env config "cache-dir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+03:23:26.058 
+03:23:26.059 > react-example@0.0.0 postinstall
+03:23:26.060 > npm install --legacy-peer-deps
+03:23:26.060 
+03:23:27.117 npm warn Unknown env config "cache-dir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+03:23:27.973 
+03:23:27.973 > react-example@0.0.0 postinstall
+03:23:27.973 > npm install --legacy-peer-deps
+03:23:27.973 
+03:23:28.912 npm warn Unknown env config "cache-dir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+03:23:29.656 
+03:23:29.656 > react-example@0.0.0 postinstall
+03:23:29.656 > npm install --legacy-peer-deps
+03:23:29.656 
+03:23:30.349 npm warn Unknown env config "cache-dir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+03:23:31.029 
+03:23:31.029 > react-example@0.0.0 postinstall
+03:23:31.029 > npm install --legacy-peer-deps
+03:23:31.030 
+03:23:31.802 npm warn Unknown env config "cache-dir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+03:23:32.924 
+03:23:32.924 > react-example@0.0.0 postinstall
+03:23:32.924 > npm install --legacy-peer-deps
+03:23:32.924 
+03:23:33.855 npm warn Unknown env config "cache-dir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+03:23:34.614 
+03:23:34.614 > react-example@0.0.0 postinstall
+03:23:34.614 > npm install --legacy-peer-deps
+03:23:34.614 
+03:23:35.579 npm warn Unknown env config "cache-dir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+03:23:36.384 
+03:23:36.384 > react-example@0.0.0 postinstall
+03:23:36.384 > npm install --legacy-peer-deps
+03:23:36.384 
+03:23:37.221 npm warn Unknown env config "cache-dir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+03:23:37.941 
+03:23:37.941 > react-example@0.0.0 postinstall
+03:23:37.941 > npm install --legacy-peer-deps
+03:23:37.941 
+03:23:38.784 npm warn Unknown env config "cache-dir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+03:23:39.494 
+03:23:39.494 > react-example@0.0.0 postinstall
+03:23:39.494 > npm install --legacy-peer-deps
+03:23:39.494 
+03:23:40.155 npm warn Unknown env config "cache-dir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+03:23:40.944 
+03:23:40.944 > react-example@0.0.0 postinstall
+03:23:40.944 > npm install --legacy-peer-deps
+03:23:40.944 
+03:23:41.801 npm warn Unknown env config "cache-dir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+03:23:42.662 
+03:23:42.664 > react-example@0.0.0 postinstall
+03:23:42.664 > npm install --legacy-peer-deps
+03:23:42.664 
+03:23:43.658 npm warn Unknown env config "cache-dir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+03:23:44.319 
+03:23:44.319 > react-example@0.0.0 postinstall
+03:23:44.319 > npm install --legacy-peer-deps
+03:23:44.319 
+03:23:45.101 npm warn Unknown env config "cache-dir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+03:23:45.924 
+03:23:45.926 > react-example@0.0.0 postinstall
+03:23:45.928 > npm install --legacy-peer-deps
+03:23:45.928 
+03:23:46.989 npm warn Unknown env config "cache-dir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+03:23:47.794 
+03:23:47.794 > react-example@0.0.0 postinstall
+03:23:47.794 > npm install --legacy-peer-deps
+03:23:47.794 
+03:23:49.267 npm warn Unknown env config "cache-dir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+03:23:50.182 
+03:23:50.183 > react-example@0.0.0 postinstall
+03:23:50.183 > npm install --legacy-peer-deps
+03:23:50.183 
+03:23:51.003 npm warn Unknown env config "cache-dir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+03:23:51.977 
+03:23:51.977 > react-example@0.0.0 postinstall
+03:23:51.977 > npm install --legacy-peer-deps
+03:23:51.977 
+03:23:52.737 npm warn Unknown env config "cache-dir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+03:23:53.353 
+03:23:53.353 > react-example@0.0.0 postinstall
+03:23:53.353 > npm install --legacy-peer-deps
+03:23:53.353 
+03:23:54.094 npm warn Unknown env config "cache-dir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+03:23:54.751 
+03:23:54.751 > react-example@0.0.0 postinstall
+03:23:54.751 > npm install --legacy-peer-deps
+03:23:54.751 
+03:23:55.844 npm warn Unknown env config "cache-dir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+03:23:56.852 
+03:23:56.853 > react-example@0.0.0 postinstall
+03:23:56.853 > npm install --legacy-peer-deps
+03:23:56.853 
+03:23:57.960 npm warn Unknown env config "cache-dir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+03:23:59.015 
+03:23:59.015 > react-example@0.0.0 postinstall
+03:23:59.015 > npm install --legacy-peer-deps
+03:23:59.015 
+03:23:59.941 npm warn Unknown env config "cache-dir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+03:24:00.744 
+03:24:00.744 > react-example@0.0.0 postinstall
+03:24:00.745 > npm install --legacy-peer-deps
+03:24:00.745 
+03:24:01.449 npm warn Unknown env config "cache-dir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+03:24:02.402 
+03:24:02.402 > react-example@0.0.0 postinstall
+03:24:02.402 > npm install --legacy-peer-deps
+03:24:02.402 
+03:24:03.284 npm warn Unknown env config "cache-dir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+03:24:04.156 
+03:24:04.157 > react-example@0.0.0 postinstall
+03:24:04.157 > npm install --legacy-peer-deps
+03:24:04.157 
+03:24:05.480 npm warn Unknown env config "cache-dir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+03:24:06.274 
+03:24:06.274 > react-example@0.0.0 postinstall
+03:24:06.274 > npm install --legacy-peer-deps
+03:24:06.274 
+03:24:07.186 npm warn Unknown env config "cache-dir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+03:24:07.977 
+03:24:07.977 > react-example@0.0.0 postinstall
+03:24:07.977 > npm install --legacy-peer-deps
+03:24:07.977 
+03:24:08.994 npm warn Unknown env config "cache-dir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+03:24:09.698 
+03:24:09.698 > react-example@0.0.0 postinstall
+03:24:09.698 > npm install --legacy-peer-deps
+03:24:09.698 
+03:24:10.697 npm warn Unknown env config "cache-dir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+03:24:11.480 
+03:24:11.481 > react-example@0.0.0 postinstall
+03:24:11.481 > npm install --legacy-peer-deps
+03:24:11.481 
+03:24:12.621 npm warn Unknown env config "cache-dir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+03:24:13.514 
+03:24:13.514 > react-example@0.0.0 postinstall
+03:24:13.514 > npm install --legacy-peer-deps
+03:24:13.514 
+03:24:14.714 npm warn Unknown env config "cache-dir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+03:24:15.539 
+03:24:15.540 > react-example@0.0.0 postinstall
+03:24:15.541 > npm install --legacy-peer-deps
+03:24:15.541 
+03:24:16.250 npm warn Unknown env config "cache-dir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+03:24:17.005 
+03:24:17.006 > react-example@0.0.0 postinstall
+03:24:17.006 > npm install --legacy-peer-deps
+03:24:17.006 
+03:24:17.705 npm warn Unknown env config "cache-dir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+03:24:18.446 
+03:24:18.446 > react-example@0.0.0 postinstall
+03:24:18.446 > npm install --legacy-peer-deps
+03:24:18.447 
+03:24:19.201 npm warn Unknown env config "cache-dir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+03:24:19.924 
+03:24:19.924 > react-example@0.0.0 postinstall
+03:24:19.931 > npm install --legacy-peer-deps
+03:24:19.931 
+03:24:20.662 npm warn Unknown env config "cache-dir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+03:24:21.384 
+03:24:21.384 > react-example@0.0.0 postinstall
+03:24:21.384 > npm install --legacy-peer-deps
+03:24:21.384 
+03:24:22.402 npm warn Unknown env config "cache-dir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+03:24:23.172 
+03:24:23.173 > react-example@0.0.0 postinstall
+03:24:23.173 > npm install --legacy-peer-deps
+03:24:23.173 
+03:24:24.054 npm warn Unknown env config "cache-dir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+03:24:24.986 
+03:24:24.986 > react-example@0.0.0 postinstall
+03:24:24.987 > npm install --legacy-peer-deps
+03:24:24.988 
+03:24:26.211 npm warn Unknown env config "cache-dir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+03:24:27.180 
+03:24:27.180 > react-example@0.0.0 postinstall
+03:24:27.180 > npm install --legacy-peer-deps
+03:24:27.180 
+03:24:28.019 npm warn Unknown env config "cache-dir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+03:24:28.784 
+03:24:28.788 > react-example@0.0.0 postinstall
+03:24:28.788 > npm install --legacy-peer-deps
+03:24:28.788 
+03:24:29.638 npm warn Unknown env config "cache-dir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+03:24:30.563 
+03:24:30.564 > react-example@0.0.0 postinstall
+03:24:30.564 > npm install --legacy-peer-deps
+03:24:30.565 
+03:24:31.277 npm warn Unknown env config "cache-dir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+03:24:32.174 
+03:24:32.174 > react-example@0.0.0 postinstall
+03:24:32.175 > npm install --legacy-peer-deps
+03:24:32.175 
+03:24:33.114 npm warn Unknown env config "cache-dir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+03:24:33.953 
+03:24:33.953 > react-example@0.0.0 postinstall
+03:24:33.953 > npm install --legacy-peer-deps
+03:24:33.953 
+03:24:34.894 npm warn Unknown env config "cache-dir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+03:24:35.662 
+03:24:35.665 > react-example@0.0.0 postinstall
+03:24:35.665 > npm install --legacy-peer-deps
+03:24:35.666 
+03:24:36.432 npm warn Unknown env config "cache-dir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+03:24:37.142 
+03:24:37.142 > react-example@0.0.0 postinstall
+03:24:37.142 > npm install --legacy-peer-deps
+03:24:37.142 
+03:24:38.125 npm warn Unknown env config "cache-dir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+03:24:38.904 
+03:24:38.904 > react-example@0.0.0 postinstall
+03:24:38.904 > npm install --legacy-peer-deps
+03:24:38.904 
+03:24:39.655 npm warn Unknown env config "cache-dir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+03:24:40.698 
+03:24:40.698 > react-example@0.0.0 postinstall
+03:24:40.698 > npm install --legacy-peer-deps
+03:24:40.698 
+03:24:41.877 npm warn Unknown env config "cache-dir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+03:24:42.854 
+03:24:42.855 > react-example@0.0.0 postinstall
+03:24:42.855 > npm install --legacy-peer-deps
+03:24:42.855 
+03:24:43.711 npm warn Unknown env config "cache-dir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+03:24:44.462 
+03:24:44.463 > react-example@0.0.0 postinstall
+03:24:44.463 > npm install --legacy-peer-deps
+03:24:44.463 
+03:24:45.325 npm warn Unknown env config "cache-dir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+03:24:46.055 
+03:24:46.061 > react-example@0.0.0 postinstall
+03:24:46.061 > npm install --legacy-peer-deps
+03:24:46.061 
+03:24:46.981 npm warn Unknown env config "cache-dir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+03:24:47.734 
+03:24:47.735 > react-example@0.0.0 postinstall
+03:24:47.735 > npm install --legacy-peer-deps
+03:24:47.735 
+03:24:48.624 npm warn Unknown env config "cache-dir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+03:24:49.509 
+03:24:49.510 > react-example@0.0.0 postinstall
+03:24:49.510 > npm install --legacy-peer-deps
+03:24:49.510 
+03:24:50.713 npm warn Unknown env config "cache-dir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+03:24:51.872 
+03:24:51.872 > react-example@0.0.0 postinstall
+03:24:51.872 > npm install --legacy-peer-deps
+03:24:51.872 
+03:24:52.835 npm warn Unknown env config "cache-dir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+03:24:53.642 
+03:24:53.643 > react-example@0.0.0 postinstall
+03:24:53.643 > npm install --legacy-peer-deps
+03:24:53.643 
+03:24:54.620 npm warn Unknown env config "cache-dir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+03:24:55.255 
+03:24:55.255 > react-example@0.0.0 postinstall
+03:24:55.256 > npm install --legacy-peer-deps
+03:24:55.258 
+03:24:56.217 npm warn Unknown env config "cache-dir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+03:24:57.141 
+03:24:57.142 > react-example@0.0.0 postinstall
+03:24:57.143 > npm install --legacy-peer-deps
+03:24:57.143 
+03:24:57.909 npm warn Unknown env config "cache-dir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+03:24:58.624 
+03:24:58.624 > react-example@0.0.0 postinstall
+03:24:58.624 > npm install --legacy-peer-deps
+03:24:58.624 
+03:24:59.305 npm warn Unknown env config "cache-dir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+03:24:59.986 
+03:24:59.986 > react-example@0.0.0 postinstall
+03:24:59.986 > npm install --legacy-peer-deps
+03:24:59.986 
+03:25:00.769 npm warn Unknown env config "cache-dir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+03:25:01.656 
+03:25:01.665 > react-example@0.0.0 postinstall
+03:25:01.665 > npm install --legacy-peer-deps
+03:25:01.665 
+03:25:02.381 npm warn Unknown env config "cache-dir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+03:25:03.252 
+03:25:03.252 > react-example@0.0.0 postinstall
+03:25:03.252 > npm install --legacy-peer-deps
+03:25:03.252 
+03:25:04.235 npm warn Unknown env config "cache-dir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+03:25:05.043 
+03:25:05.043 > react-example@0.0.0 postinstall
+03:25:05.043 > npm install --legacy-peer-deps
+03:25:05.043 
+03:25:05.773 npm warn Unknown env config "cache-dir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+03:25:06.517 
+03:25:06.517 > react-example@0.0.0 postinstall
+03:25:06.517 > npm install --legacy-peer-deps
+03:25:06.517 
+03:25:07.371 npm warn Unknown env config "cache-dir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+03:25:07.970 
+03:25:07.970 > react-example@0.0.0 postinstall
+03:25:07.970 > npm install --legacy-peer-deps
+03:25:07.970 
+03:25:08.778 npm warn Unknown env config "cache-dir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+03:25:09.549 
+03:25:09.549 > react-example@0.0.0 postinstall
+03:25:09.550 > npm install --legacy-peer-deps
+03:25:09.550 
+03:25:10.564 npm warn Unknown env config "cache-dir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+03:25:11.301 
+03:25:11.301 > react-example@0.0.0 postinstall
+03:25:11.301 > npm install --legacy-peer-deps
+03:25:11.301 
+03:25:12.302 npm warn Unknown env config "cache-dir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+03:25:12.979 
+03:25:12.979 > react-example@0.0.0 postinstall
+03:25:12.979 > npm install --legacy-peer-deps
+03:25:12.979 
+03:25:13.945 npm warn Unknown env config "cache-dir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+03:25:14.583 
+03:25:14.584 > react-example@0.0.0 postinstall
+03:25:14.584 > npm install --legacy-peer-deps
+03:25:14.584 
+03:25:15.556 npm warn Unknown env config "cache-dir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+03:25:16.391 
+03:25:16.391 > react-example@0.0.0 postinstall
+03:25:16.391 > npm install --legacy-peer-deps
+03:25:16.391 
+03:25:17.145 npm warn Unknown env config "cache-dir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+03:25:18.032 
+03:25:18.032 > react-example@0.0.0 postinstall
+03:25:18.032 > npm install --legacy-peer-deps
+03:25:18.032 
+03:25:19.145 npm warn Unknown env config "cache-dir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+03:25:19.812 
+03:25:19.812 > react-example@0.0.0 postinstall
+03:25:19.812 > npm install --legacy-peer-deps
+03:25:19.812 
+03:25:22.228 npm warn Unknown env config "cache-dir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+03:25:22.903 
+03:25:22.903 > react-example@0.0.0 postinstall
+03:25:22.903 > npm install --legacy-peer-deps
+03:25:22.903 
+03:25:24.412 npm warn Unknown env config "cache-dir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+03:25:25.321 
+03:25:25.326 > react-example@0.0.0 postinstall
+03:25:25.326 > npm install --legacy-peer-deps
+03:25:25.326 
+03:25:27.302 npm warn Unknown env config "cache-dir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+03:25:28.733 
+03:25:28.745 > react-example@0.0.0 postinstall
+03:25:28.745 > npm install --legacy-peer-deps
+03:25:28.745 
+03:25:32.208 npm warn Unknown env config "cache-dir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+03:25:33.080 
+03:25:33.090 > react-example@0.0.0 postinstall
+03:25:33.090 > npm install --legacy-peer-deps
+03:25:33.090 
+03:25:36.888 npm warn Unknown env config "cache-dir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+03:25:39.110 
+03:25:39.121 > react-example@0.0.0 postinstall
+03:25:39.123 > npm install --legacy-peer-deps
+03:25:39.123 
+03:25:42.105 npm warn Unknown env config "cache-dir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+03:25:43.858 
+03:25:43.865 > react-example@0.0.0 postinstall
+03:25:43.865 > npm install --legacy-peer-deps
+03:25:43.865 
+03:25:46.906 npm warn Unknown env config "cache-dir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+03:25:48.787 
+03:25:48.789 > react-example@0.0.0 postinstall
+03:25:48.792 > npm install --legacy-peer-deps
+03:25:48.792 
+03:25:52.899 npm warn Unknown env config "cache-dir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+03:25:54.003 
+03:25:54.004 > react-example@0.0.0 postinstall
+03:25:54.004 > npm install --legacy-peer-deps
+03:25:54.005 
+03:25:57.401 npm warn Unknown env config "cache-dir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+03:25:58.151 
+03:25:58.152 > react-example@0.0.0 postinstall
+03:25:58.152 > npm install --legacy-peer-deps
+03:25:58.153 
+03:26:03.156 npm warn Unknown env config "cache-dir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+03:26:04.022 
+03:26:04.023 > react-example@0.0.0 postinstall
+03:26:04.023 > npm install --legacy-peer-deps
+03:26:04.023 
+03:26:06.690 npm warn Unknown env config "cache-dir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+03:26:07.954 
+03:26:07.955 > react-example@0.0.0 postinstall
+03:26:07.955 > npm install --legacy-peer-deps
+03:26:07.955 
+03:26:11.271 npm warn Unknown env config "cache-dir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+03:26:13.298 
+03:26:13.298 > react-example@0.0.0 postinstall
+03:26:13.298 > npm install --legacy-peer-deps
+03:26:13.298 
+03:26:16.647 npm warn Unknown env config "cache-dir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+03:26:17.869 
+03:26:17.877 > react-example@0.0.0 postinstall
+03:26:17.877 > npm install --legacy-peer-deps
+03:26:17.877 
+03:26:20.495 npm warn Unknown env config "cache-dir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+03:26:22.238 
+03:26:22.240 > react-example@0.0.0 postinstall
+03:26:22.240 > npm install --legacy-peer-deps
+03:26:22.240 
+03:26:25.000 npm warn Unknown env config "cache-dir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+03:26:25.795 
+03:26:25.796 > react-example@0.0.0 postinstall
+03:26:25.796 > npm install --legacy-peer-deps
+03:26:25.796 
+03:26:29.117 npm warn Unknown env config "cache-dir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+03:26:30.236 
+03:26:30.239 > react-example@0.0.0 postinstall
+03:26:30.239 > npm install --legacy-peer-deps
+03:26:30.239 
+03:26:32.851 npm warn Unknown env config "cache-dir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+03:26:34.137 
+03:26:34.140 > react-example@0.0.0 postinstall
+03:26:34.140 > npm install --legacy-peer-deps
+03:26:34.140 
+03:26:37.822 npm warn Unknown env config "cache-dir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+03:26:39.589 
+03:26:39.605 > react-example@0.0.0 postinstall
+03:26:39.605 > npm install --legacy-peer-deps
+03:26:39.609 
+03:26:41.987 npm warn Unknown env config "cache-dir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+03:26:43.701 
+03:26:43.704 > react-example@0.0.0 postinstall
+03:26:43.704 > npm install --legacy-peer-deps
+03:26:43.704 
+03:26:46.217 npm warn Unknown env config "cache-dir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+03:26:47.686 
+03:26:47.692 > react-example@0.0.0 postinstall
+03:26:47.696 > npm install --legacy-peer-deps
+03:26:47.696 
+03:26:50.374 npm warn Unknown env config "cache-dir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+03:26:52.612 
+03:26:52.614 > react-example@0.0.0 postinstall
+03:26:52.615 > npm install --legacy-peer-deps
+03:26:52.615 
+03:26:54.955 npm warn Unknown env config "cache-dir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+03:26:56.069 
+03:26:56.070 > react-example@0.0.0 postinstall
+03:26:56.071 > npm install --legacy-peer-deps
+03:26:56.071 
+03:26:59.058 npm warn Unknown env config "cache-dir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+03:27:00.808 
+03:27:00.811 > react-example@0.0.0 postinstall
+03:27:00.811 > npm install --legacy-peer-deps
+03:27:00.811 
+03:27:04.099 npm warn Unknown env config "cache-dir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+03:27:06.219 
+03:27:06.281 > react-example@0.0.0 postinstall
+03:27:06.282 > npm install --legacy-peer-deps
+03:27:06.283 
+03:27:10.364 npm warn Unknown env config "cache-dir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+03:27:13.089 
+03:27:13.090 > react-example@0.0.0 postinstall
+03:27:13.090 > npm install --legacy-peer-deps
+03:27:13.090 
+03:27:20.165 npm warn Unknown env config "cache-dir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+03:27:22.045 
+03:27:22.063 > react-example@0.0.0 postinstall
+03:27:22.063 > npm install --legacy-peer-deps
+03:27:22.064 
+03:27:33.629 npm warn Unknown env config "cache-dir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+03:27:36.785 
+03:27:36.796 > react-example@0.0.0 postinstall
+03:27:36.796 > npm install --legacy-peer-deps
+03:27:36.796 
+03:27:42.572 npm warn Unknown env config "cache-dir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+03:27:47.435 
+03:27:47.442 > react-example@0.0.0 postinstall
+03:27:47.445 > npm install --legacy-peer-deps
+03:27:47.446 
+03:27:55.919 npm warn Unknown env config "cache-dir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+03:27:58.709 
+03:27:58.716 > react-example@0.0.0 postinstall
+03:27:58.716 > npm install --legacy-peer-deps
+03:27:58.716 
+03:28:06.405 npm warn Unknown env config "cache-dir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+03:28:11.181 
+03:28:11.183 > react-example@0.0.0 postinstall
+03:28:11.183 > npm install --legacy-peer-deps
+03:28:11.183 
+03:28:17.483 npm warn Unknown env config "cache-dir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+03:28:20.347 
+03:28:20.373 > react-example@0.0.0 postinstall
+03:28:20.373 > npm install --legacy-peer-deps
+03:28:20.374 
+03:28:28.207 npm warn Unknown env config "cache-dir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+03:28:31.220 
+03:28:31.224 > react-example@0.0.0 postinstall
+03:28:31.224 > npm install --legacy-peer-deps
+03:28:31.224 
+03:28:38.788 npm warn Unknown env config "cache-dir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+03:28:40.831 
+03:28:40.934 > react-example@0.0.0 postinstall
+03:28:40.934 > npm install --legacy-peer-deps
+03:28:40.934 
+03:28:49.248 npm warn Unknown env config "cache-dir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+03:28:53.935 
+03:28:53.936 > react-example@0.0.0 postinstall
+03:28:53.936 > npm install --legacy-peer-deps
+03:28:53.936 
+03:29:06.055 npm warn Unknown env config "cache-dir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+03:30:40.984 Error: [BUILD_UTILS_SPAWN_SIGKILL] Command "npm install --legacy-peer-deps" exited with SIGKILL
+03:30:41.858 ▲ Build system report
+03:30:41.859 ▲ To always completely log this report, add VERCEL_BUILD_SYSTEM_REPORT=1 as an Environment Variable to your project.
+03:30:41.859 • At least one "Out of Memory" ("OOM") event was detected during the build.
+03:30:41.859   • This occurs when processes or applications running during the build completely fill up the available memory (RAM) in the build container. When this happens, the build container terminates one of the processes during the build with a SIGKILL signal.
+03:30:41.859   • Read this troubleshooting guide for more information: https://vercel.link/troubleshoot-build-errors

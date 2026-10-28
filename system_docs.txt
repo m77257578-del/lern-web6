@@ -1,0 +1,12 @@
+System Documentation for Lern Web Platform
+===========================================
+
+This platform facilitates the creation, customization, and management of various software projects, including LMS portals, SaaS tools, and AI-powered educational systems.
+
+Key Components:
+- Frontend: React with Tailwind CSS (Vite)
+- Backend: Express.js
+- Database: Firebase Firestore (Real-time synchronization)
+- AI: Google Gemini API (via @google/genai)
+
+For any technical issues or further documentation, please contact the development team.

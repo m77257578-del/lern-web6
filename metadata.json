@@ -1,0 +1,8 @@
+{
+  "name": "Remix Remix Remix Remix Remix ليرن ويب | Lern Web",
+  "description": "منصة تعليمية متكاملة وسوق أدوات ومحاكي مراكز تعليمية مع محرك PWA وترخيص مرن | Integrated educational tool marketplace, sandbox center simulator \u0026 PWA suite",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
